@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2019-09-05 13:06:11.226175",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2019-09-05 13:06:18.188548",
+ "modified_by": "Administrator",
+ "module": "Restaurante",
+ "name": "caja-del-restaurante",
+ "owner": "Administrator",
+ "page_name": "Caja del Restaurante",
+ "roles": [
+  {
+   "role": "Restaurant Manager"
+  },
+  {
+   "role": "Sales User"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 1,
+ "title": "Caja del Restaurante"
+}

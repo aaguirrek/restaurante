@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include restaurante *.css
+recursive-include restaurante *.csv
+recursive-include restaurante *.html
+recursive-include restaurante *.ico
+recursive-include restaurante *.js
+recursive-include restaurante *.json
+recursive-include restaurante *.md
+recursive-include restaurante *.png
+recursive-include restaurante *.py
+recursive-include restaurante *.svg
+recursive-include restaurante *.txt
+recursive-exclude restaurante *.pyc
