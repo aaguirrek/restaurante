@@ -80,7 +80,7 @@ function sendItem (name){
 	let d = new frappe.ui.Dialog({
 		title: name,
 		fields: complementos,
-		primary_action_label: 'Submit',
+		primary_action_label: 'Enviar',
 		primary_action(values) {
 			console.log(values);
 			d.hide();
