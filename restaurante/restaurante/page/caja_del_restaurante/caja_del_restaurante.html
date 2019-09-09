@@ -25,14 +25,16 @@
 }
 
 .flex-container > div.item {
-    background-color: #f1f1f1;
     width: 150px;
     min-width: 150px;
     margin: 10px;
     text-align: center;
-    min-height: 150px;
-    max-height: 150px;
+    min-height: 100px;
+    padding-top: 10px;
+    max-height: 100px;
     max-width: 150px;
+	border-radius:5px;
+	border: 1px solid #cccccc;
 }
 
 </style>
@@ -44,25 +46,57 @@
 			<div class="row layout-main">	
 				<div class="col-md-12 layout-main-section-wrapper">
 					<div class="layout-main-section" style="min-height: calc( 100vh - 250px );" >
-						<div class="col-md-4" style="padding-top: 15px">
+						<div class="col-md-4" style="padding-top: 15px ; border: 1px solid #ccc">
 							<div class="control-input-wrapper customer">						
 											
 							</div>
+							<div class="row">
+								<div class="col-md-12 layout" style="padding-top: 15px ; padding-left:0">
+								<ul style="
+									max-height: 40vh;
+									min-height: 40vh;
+								">
+									<li style="
+										list-style: none;
+									">dasdas</li>
+									</ul>
+								</div>
+							</div>
 						</div>
 						<div class="col-md-8" style="padding-top: 15px">
-							<div class="col-md-12 flex-container">
-								<div class="item">
-									dsasda
+							<div class="col-md-8">
+								<div class="control-input-wrapper filter">						
+												
 								</div>
-								<div class="item">
-									dsasda
+							</div>
+							<div class="col-md-4">
+								<div class="control-input-wrapper group">						
+												
 								</div>
-								<div class="item">
-									dsasda
+							</div>
+							<div class="col-md-12 flex-container all_items">
+								{% for ( var i in restaurantMenu ){ %}
+									
+								<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}}" 
+								onclick = "sendItem( \'{{restaurantMenu[i].item.name}}\' )" >
+								
+										{{ restaurantMenu[i].item.item_name }}
+										<div class="rate" style="
+												    position: absolute;
+													bottom: 10px;
+													width: 150px;
+													text-align: center;
+													background: rgba(0,0,0,0.03);
+													padding-bottom: 5px;
+													padding-top: 5px;
+													font-weight:bold;
+											">
+
+											S/. {{ restaurantMenu[i].menu.rate }}
+										</div>
+
 								</div>
-								<div class="item">
-									dsasda
-								</div>
+								{%  } %}
 							</div>
 						</div>
 					</div>
