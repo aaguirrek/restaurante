@@ -82,6 +82,7 @@ function sendItem (name){
 		fields: complementos,
 		primary_action_label: 'Submit',
 		primary_action(values) {
+			//$("#lista")
 			console.log(values);
 			d.hide();
 		}
