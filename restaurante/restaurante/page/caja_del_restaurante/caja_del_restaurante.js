@@ -18,7 +18,8 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	frappe.db.get_doc("Complementos del Plato").then(doc => {
 		console.log(doc)
 		toppings = doc
-    })
+	})
+	console.log(restaurantMenu)
 	page.wrapperTemplate = page.wrapper.html(frappe.render_template("caja_del_restaurante", { restaurantMenu:restaurantMenu } ) )
 	let fg = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".customer"),
@@ -63,18 +64,46 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		options:'Item'
 	})/*/
 }
-function sendItem (name){
+function sendItem (name, rate){
+	name = window.atob(name)
 	let topp=null
 	let complementos=[];
-	for (let i in toppings.complemento )
-	{
-		topp = { label: toppings.complemento[i].nombre,filters : {"item_group":toppings.complemento[i].item}, fieldname: "item"+i, fieldtype: 'Link', options: "Item" }
+	complementos.push({
+		label:"Cantidad",
+		fieldname:"qty",
+		fieldtype:"Int",
+		default: 1
+	})
+	for (let i in toppings.complemento ){
+		topp = { 
+			label: toppings.complemento[i].nombre,
+			filters : {
+				"item_group":toppings.complemento[i].item
+			}, 
+			fieldname: "item"+i, 
+			fieldtype: 'Link', 
+			options: "Item" }
 		complementos.push(topp)
 	}
 	complementos.push({
+		label:"Nombre del producto",
+		fieldname:"itemname",
+		fieldtype:"Data",
+		hidden:1,
+		default: name
+	})
+	complementos.push({
+		label:"Precio del Producto",
+		fieldname:"rate",
+		fieldtype:"Currency",
+		hidden:1,
+		default: rate
+	})
+	complementos.push({
 		label:"Comentario",
 		fieldname:"comentario",
-		fieldtype:"Text"
+		fieldtype:"Text",
+
 	})
 	
 	let d = new frappe.ui.Dialog({
@@ -82,8 +111,71 @@ function sendItem (name){
 		fields: complementos,
 		primary_action_label: 'Enviar',
 		primary_action(values) {
-			//$("#lista")
-			console.log(values);
+			add_item(values)
+			d.hide();
+		}
+	});
+	
+	d.show();
+}
+
+function add_item(values){
+	console.log(values)
+	
+	let i = 0
+	values.elements=[]
+	let idstring = ""
+	while(values["item"+i] !== undefined ){
+		values.elements.push(values["item"+i])
+		idstring += values["item"+i]+"|"
+		i++
+	}
+	idstring += values.comentario
+	let id = window.btoa(values.itemname+"|"+idstring)
+	id = id.replace(/=/g, "_")
+	values.id=id
+
+	if( $("#"+id+"_id" ).length ){
+		let qty = (parseInt( $("#"+id+"_qty").text() ) + parseInt( values.qty ) )
+		$("#"+id+"_qty").text( qty )
+		$("#"+id+"_rate").text( qty * parseFloat(values.rate) )
+	}else{
+		let template = frappe.render_template("item", { values:values } )
+		$("#menu_items").append(template)
+	}
+}
+
+function plato_preparado(name,el){
+	id = el.id
+	id = id.replace("_href","")
+	let element = id
+	console.log(id)
+	id = id.replace(/_/g,"=")
+	id = window.atob( id )
+	let topp=null
+	let complementos=[];
+
+	complementos.push({
+		label:"Nombre del producto",
+		fieldname:"itemname",
+		fieldtype:"Data",
+		hidden:1,
+		default: name
+	})
+	complementos.push({
+		label:"Referencia",
+		fieldname:"reference",
+		fieldtype:"Text",
+		hidden:1,
+		default: element
+	})
+	
+	let d = new frappe.ui.Dialog({
+		title: name,
+		fields: complementos,
+		primary_action_label: 'Enviar',
+		primary_action(values) {
+//			add_item(values)
 			d.hide();
 		}
 	});

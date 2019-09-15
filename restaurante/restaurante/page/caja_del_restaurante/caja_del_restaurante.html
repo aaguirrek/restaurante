@@ -46,60 +46,61 @@
 			<div class="row layout-main">	
 				<div class="col-md-12 layout-main-section-wrapper">
 					<div class="layout-main-section" style="min-height: calc( 100vh - 250px );" >
-						<div class="col-md-4" style="padding-top: 15px ; border: 1px solid #ccc">
-							<div class="control-input-wrapper customer">						
-											
-							</div>
-							<div class="row">
-								<div class="col-md-12 layout" id="lista" style="padding-top: 15px;">
-										<div class="row" style="border-bottom: 1px solid #ddd; padding-bottom:7px">
-											<div class="title col-md-1">
-												<a onclick="preparado"><i class="octicon octicon-circle-slash" style="color:#ff5858"></i></a>
-											</div>
-											<div class="title col-md-6">dasdas</div>
-											<div class="title col-md-2">2</div>
-											<div class="title col-md-1">
-												<a onclick="preparado"><i class="octicon octicon-bell" style="color:#98d85b"></i></a>
-											</div>
-											<div class="title col-md-2">2</div>
-										</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-8" style="padding-top: 15px">
-							<div class="col-md-8">
-								<div class="control-input-wrapper filter">						
+						<div class="row" style="
+								padding-left: 15px;
+								padding-right: 15px;
+							">
+							<div class="col-md-4" style="padding-top: 15px ; border: 1px solid #ccc">
+								<div class="control-input-wrapper customer">						
 												
 								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="control-input-wrapper group">						
-												
-								</div>
-							</div>
-							<div class="col-md-12 flex-container all_items">
-								{% for ( var i in restaurantMenu ){ %}
+								<div class="row" id="menu_items">
 									
-								<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}}" 
-								onclick = "sendItem( \'{{restaurantMenu[i].item.name}}\' )" >
-								
-										{{ restaurantMenu[i].item.item_name }}
-										<div class="rate" style="
-												    position: absolute;
-													bottom: 10px;
-													width: 150px;
-													text-align: center;
-													background: rgba(0,0,0,0.03);
-													padding-bottom: 5px;
-													padding-top: 5px;
-													font-weight:bold;
-											">
-
-											S/. {{ restaurantMenu[i].menu.rate }}
-										</div>
-
 								</div>
-								{%  } %}
+							</div>
+							<div class="col-md-8" style="padding-top: 15px">
+								<div class="col-md-8">
+									<div class="control-input-wrapper filter">						
+													
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="control-input-wrapper group">						
+													
+									</div>
+								</div>
+								<div class="col-md-12 flex-container all_items">
+									{% for ( var i in restaurantMenu ){ %}
+										
+									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}}" 
+									onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }} )" >
+									
+											<span style="
+											min-height: 60px;
+											max-height: 60px;
+											display: block;
+											font-size: 9.5pt;
+											padding-left: 5px;
+											padding-right: 5px;
+										">{{ restaurantMenu[i].item.item_name }}</span>
+											<div class="rate" style="
+														bottom: 10px;
+														width: 150px;
+														max-height: 30px;
+														min-height: 30px;
+														text-align: center;
+														background: rgba(0,0,0,0.03);
+														padding-bottom: 5px;
+														padding-top: 5px;
+														font-weight:bold;
+												">
+
+												S/. {{ restaurantMenu[i].menu.rate }}
+											</div>
+
+									</div>
+									{%  } %}
+								</div>
 							</div>
 						</div>
 					</div>
