@@ -152,16 +152,28 @@ function plato_preparado(name,el){
 	console.log(id)
 	id = id.replace(/_/g,"=")
 	id = window.atob( id )
-	let topp=null
 	let complementos=[];
-
-	complementos.push({
-		label:"Nombre del producto",
-		fieldname:"itemname",
-		fieldtype:"Data",
-		hidden:1,
-		default: name
+	let ingredientes=null
+	frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Ingredientes",
+			name: "Ingredientes-"+name
+		},
+		async: false,
+		callback: function(r) {
+			ingredientes = r.message
+		}
 	})
+	for ( var i in ingredientes.items ){
+		let item = ingredientes.items[i]
+		complementos.push({
+			label: item.item_name+" en "+item.uom,
+			fieldname: item.item,
+			fieldtype:"Float",
+			default: item.qty
+		})
+	}
 	complementos.push({
 		label:"Referencia",
 		fieldname:"reference",
@@ -169,16 +181,26 @@ function plato_preparado(name,el){
 		hidden:1,
 		default: element
 	})
+	complementos.push({
+		label:"Item Name",
+		fieldname:"item_name",
+		fieldtype:"Text",
+		hidden:1,
+		default: name
+	})
 	
 	let d = new frappe.ui.Dialog({
 		title: name,
 		fields: complementos,
 		primary_action_label: 'Enviar',
 		primary_action(values) {
-//			add_item(values)
+			plato_preparado(values)
 			d.hide();
 		}
 	});
 	
 	d.show();
+}
+function plato_preparado(values){
+	
 }
