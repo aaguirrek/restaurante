@@ -7,7 +7,7 @@ var page=null;
 var sunat_setup=null;
 let w=null;
 
-var extras = []
+var extras = {}
 var extra = {}
 var platos = {}
 var inicial = {}
@@ -118,7 +118,7 @@ function sendItem (name, rate){
 		fieldtype:"Int",
 		default: 1
 	});
-	extras=[];	
+	extras={};	
 	for (let i in toppings.complemento ){
 		topp = {
 			label: toppings.complemento[i].nombre,
@@ -133,12 +133,12 @@ function sendItem (name, rate){
 			
 		};
 		complementos.push(topp);
-		extras.push({
+		extras["item"+i] = {
 			fieldname: "item"+i,
 			fieldtype: 'Link',
 			options: "Item" ,
 			default:toppings.complemento[i].default
-		});
+		};
 	}
 	complementos.push({
 		label:"Nombre del producto",
@@ -195,10 +195,14 @@ function add_item(values){
 	while(values["item"+i] !== undefined ){
 		values.elements.push(values["item"+i]);
 		idstring += values["item"+i]+"|";
-		extras[i].value = values["item"+i];
+		extras["item"+i].value = values["item"+i];
 		i++;
 	}
-	extras.comentario = values.comentario;
+	if(values.comentario!== undefined){
+		extras.comentario = values.comentario;
+	}else{
+		extras.comentario = "";
+	}
 	
 	idstring += values.comentario
 	let id = window.btoa(values.itemname+"|"+idstring);
@@ -261,9 +265,9 @@ function add_item(values){
 	})
 	
 	
-	let elementos2 = []
-	
+	let elementos2 = [];
 	for (var o in platos){
+		console.log(extra[o]);
       elementos2.push({
       	"name": platos[o].itemname,
 	      "qty": platos[o].qty,
@@ -287,7 +291,7 @@ function add_item(values){
 		},
 		async: false,
 		callback: function(r) {
-			console.log(r.message)
+			//console.log(r.message)
 		},
 	})
 	
@@ -300,7 +304,7 @@ function add_item(values){
 		},
 		async: false,
 		callback: function(r) {
-			console.log(r.message)
+			//console.log(r.message)
 			if(r.message == "no encontrado"){
 				$("#"+values.id+"_href").hide()
 			}
