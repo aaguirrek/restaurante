@@ -1,0 +1,1 @@
+$('a.module-link[href^="#modules/Restaurante"]').find("span").html("Restaurante Caja Y Cocina")

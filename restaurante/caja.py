@@ -16,6 +16,7 @@ def ckeck_ingredientes_item(id):
     return "encontrado"
   else:
     return "no encontrado"
+    
 @frappe.whitelist()
 def sync(restaurant_table, items, ct="Anonimo"):
   items      = json.loads(items)
