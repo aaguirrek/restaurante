@@ -35,7 +35,7 @@ def get_init(restaurant_table = ""):
     return {
       "estado": estado,
       "data": get_datos,
-      "mesa": restaurant_table
+      "mesa": {"name":restaurant_table}
     }
 
 @frappe.whitelist()
