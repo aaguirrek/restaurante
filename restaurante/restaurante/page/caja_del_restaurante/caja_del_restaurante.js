@@ -4,30 +4,51 @@ frappe.provide('frappe.views');
 frappe.provide('sample_register');
 var toppings=null;
 var page=null;
-
+var sunat_setup=null;
 let w=null;
-frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {	
+var platos = {}
+frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	w = wrapper;
 	 page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: 'Caja del Restaurante',
 		single_column: false
 	})
+	frappe.call({
+      method: "frappe.client.get",
+      args: {
+        doctype: "Setup"
+      },
+      async: false,
+      callback: function(r) {
+        sunat_setup = r.message;
+      }
+  })
 	var restaurantMenu = null;
 	frappe.call({async:false,method:"restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.get_menu", args:{restaurante:"greena" }, callback:function(res){ restaurantMenu =res.message }});
 	frappe.db.get_doc("Complementos del Plato").then(doc => {
-		console.log(doc)
 		toppings = doc
 	})
-	console.log(restaurantMenu)
 	page.wrapperTemplate = page.wrapper.html(frappe.render_template("caja_del_restaurante", { restaurantMenu:restaurantMenu } ) )
+	let fmesa = frappe.ui.form.make_control({
+		parent: page.wrapper.find(".mesa"),
+		df: {
+			fieldtype: "Link",
+			options: "Restaurant Table",
+			fieldname: "mesarestaurant",
+			placeholder: "Mesa número"
+		},
+		render_input: true
+	});
+	fmesa.make();
 	let fg = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".customer"),
 		df: {
 			fieldtype: "Link",
 			options: "Customer",
 			fieldname: "customer",
-			placeholder: "Clientes"
+			placeholder: "Cliente",
+			default:"Anonimo"
 		},
 		render_input: true
 	});
@@ -54,15 +75,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		render_input: true
 	});
 	group.make();
-	console.log(frappe);
-	/*
-	//temp1.page_form.html("<h1>hola mundo</h1>"+temp1.page_form.html())
-	page.add_field({
-		fieldname: 'item_name',
-		label: 'Producto',
-		fieldtype:'Link',
-		options:'Item'
-	})/*/
+	//console.log(frappe);
 }
 function sendItem (name, rate){
 	name = window.atob(name)
@@ -75,14 +88,17 @@ function sendItem (name, rate){
 		default: 1
 	})
 	for (let i in toppings.complemento ){
-		topp = { 
+		topp = {
 			label: toppings.complemento[i].nombre,
 			filters : {
 				"item_group":toppings.complemento[i].item
-			}, 
-			fieldname: "item"+i, 
-			fieldtype: 'Link', 
-			options: "Item" }
+			},
+			fieldname: "item"+i,
+			fieldtype: 'Link',
+			options: "Item" ,
+			default:toppings.complemento[i].default
+			
+		}
 		complementos.push(topp)
 	}
 	complementos.push({
@@ -120,8 +136,6 @@ function sendItem (name, rate){
 }
 
 function add_item(values){
-	console.log(values)
-	
 	let i = 0
 	values.elements=[]
 	let idstring = ""
@@ -130,19 +144,80 @@ function add_item(values){
 		idstring += values["item"+i]+"|"
 		i++
 	}
+	
 	idstring += values.comentario
 	let id = window.btoa(values.itemname+"|"+idstring)
 	id = id.replace(/=/g, "_")
 	values.id=id
-
+	
+	
+	//restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.sync
 	if( $("#"+id+"_id" ).length ){
 		let qty = (parseInt( $("#"+id+"_qty").text() ) + parseInt( values.qty ) )
 		$("#"+id+"_qty").text( qty )
 		$("#"+id+"_rate").text( qty * parseFloat(values.rate) )
+		values.qty = qty
+		
 	}else{
 		let template = frappe.render_template("item", { values:values } )
 		$("#menu_items").append(template)
+		let itotal=parseFloat( $("#total_total").text().replace("S/.", "") )
+		let iitem = parseFloat(values.rate)
+		let iqty = parseInt(values.qty)
+		itotal = itotal +  (iitem * iqty )
+		let iigv = parseFloat( sunat_setup.igv )
+		let itotaligv = parseFloat( parseFloat( (itotal * iigv) / (100 + iigv) ).toFixed(2) )
+		$("#total_total").text( "S/." +  itotal )
+		$("#total_igv").text(  "S/." + itotaligv )
+		$("#total_subtotal").text(  "S/." + parseFloat(itotal - itotaligv).toFixed(2) )
+		values.qty = iqty
 	}
+	platos[values.id] = values
+	
+	var elementos=[]
+	
+	for (var o in platos){
+      elementos.push({
+      	"name": values.itemname,
+	      "qty": values.qty,
+	      "uom": "Números",
+	      "rate": values.rate
+      })
+	}
+	
+	
+	frappe.call({
+		method: "restaurante.caja.sync",
+		args: {
+			
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('input[data-fieldname="mesarestaurant"]').val(),
+			items:elementos
+		},
+		async: true,
+		callback: function(r) {
+			console.log(r.message)
+			if(r.message == "no encontrado"){
+				$("#"+values.id+"_href").hide()
+			}
+		},
+	})
+	
+	
+	frappe.call({
+		method: "restaurante.caja.ckeck_ingredientes_item",
+		args: {
+			id: "Ingredientes-"+values.itemname
+		},
+		async: false,
+		callback: function(r) {
+			console.log(r.message)
+			if(r.message == "no encontrado"){
+				$("#"+values.id+"_href").hide()
+			}
+		},
+	})
+	
 }
 
 function plato_preparado(name,el){
@@ -174,33 +249,116 @@ function plato_preparado(name,el){
 			default: item.qty
 		})
 	}
-	complementos.push({
-		label:"Referencia",
-		fieldname:"reference",
-		fieldtype:"Text",
-		hidden:1,
-		default: element
-	})
-	complementos.push({
-		label:"Item Name",
-		fieldname:"item_name",
-		fieldtype:"Text",
-		hidden:1,
-		default: name
-	})
 	
 	let d = new frappe.ui.Dialog({
 		title: name,
 		fields: complementos,
 		primary_action_label: 'Enviar',
 		primary_action(values) {
-			plato_preparado(values)
+			plato_servido(values , id)
 			d.hide();
 		}
 	});
 	
 	d.show();
 }
-function plato_preparado(values){
+function plato_servido(values, iditem ){
+	cliente = "Anonimo"
+	let data=[]
+	let antid = window.btoa(iditem)
+	antid = antid.replace(/=/g, "_")
+	let unique = new Date().getTime()
+	let newid = iditem+"|newunique: "+unique
+	newid = window.btoa(newid)
+	newid = newid.replace(/=/g, "_")
+	if($("input[data-fieldname=customer]").val() != ""){
+		cliente = $("input[data-fieldname=customer]").val()
+	}
 	
+	for( let i in values ){
+		data.push({
+			item:i,
+			qty:values[i]
+		})
+	}
+	
+	console.log(data)
+	frappe.call({
+		async:false,
+		method:"restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.set_plato",
+		args:{
+			data:data,
+			customer: cliente
+		},
+		callback:function(r){
+			res =r.message
+			if(res.exc_type == "DoesNotExistError"){
+				frappe.msgprint("Se ha registrado el uso de los ingredientes")
+			}
+			$("#"+antid+"_id").attr("id",newid+"_id")
+			$("#"+antid+"_rate").attr("id",newid+"_rate")
+			$("#"+antid+"_qty").attr("id",newid+"_qty")
+			$("#"+antid+"_href i").attr("style","color:#dcdcdc;")
+			$("#"+antid+"_href").attr("onclick","")
+			$("#"+antid+"_href").attr("id",newid+"_href")
+		}
+	});
+}
+function pagarTodo(){
+	let complementos = []
+	let modosPagos = null
+	frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Modos de pago"
+		},
+		async: false,
+		callback: function(r) {
+			modosPagos = r.message
+		}
+	})
+	for (var i in modosPagos.items ){
+		if(i % 2 == 0 && i!= 0 ){
+			complementos.push({
+				label:"",
+				fieldname:"pagar_section_"+i,
+				fieldtype:"Section Break",
+			})
+		}
+		complementos.push({
+			label: modosPagos.items[i].metodo_de_pago,
+			fieldname:"item"+i,
+			fieldtype:"Currency",
+		})
+		if(i % 2 == 0 ){
+			complementos.push({
+				label:"",
+				fieldname:"pagar_column_"+i,
+				fieldtype:"Column Break",
+			})
+		}
+	}
+	complementos.push({
+		label:"Desea Boleta / Factura",
+		fieldname:"pagar_section_break_1",
+		fieldtype:"Section Break",
+	})
+	complementos.push({
+			label:"Tipo de Comprobante",
+			fieldname:"tipo_comprobante",
+			fieldtype:"Select",
+			options:"Factura\nBoleta\nOtro"
+		})
+		
+	let d = new frappe.ui.Dialog({
+		title: name,
+		fields: complementos,
+		primary_action_label: 'Enviar',
+		primary_action(values) {
+			plato_servido(values , id)
+			d.hide();
+		}
+	});
+	
+	d.show();
 }

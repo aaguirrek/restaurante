@@ -8,19 +8,20 @@
             <div class="title col-md-2" style="padding-left: 3px;padding-right: 3px;font-size: 9pt;">
                 <a onclick=""><i class="octicon octicon-dash" style="color:#5e64ff;padding-left: 4px;padding-right: 4px;"></i>
                 </a><span id="{{values.id}}_qty">{{values.qty}}</span><a onclick="">
-                <i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a></div>
+                <i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a>
+            </div>
             <div class="title col-md-1">
                 <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" ><i class="octicon octicon-bell" style="color:#98d85b"></i></a>
             </div>
             <div class="title col-md-1">{{values.rate}}</div>
-            <div class="title col-md-2" id="{{values.id}}_rate">{{ parseFloat(values.rate) * parseFloat(values.qty) }}</div>
+            <div class="title col-md-2" id="{{values.id}}_rate" data-tipo="rate">{{ parseFloat(values.rate) * parseFloat(values.qty) }}</div>
         </div>
         <div class="row">
             <div class="col-md-12" style="color:#ccc;font-size:8.5pt;
             padding-left: 20pt;
             padding-right: 20pt;">
             {%  for( var e in values.elements   ){   %}
-                {{ " "+values.elements[e] }} - 
+                {{ " "+values.elements[e] }} -
             {% } %}
             {% if(values.comentario !== undefined ){ %}
             {{ values.comentario }}
