@@ -6,11 +6,16 @@ var toppings=null;
 var page=null;
 var sunat_setup=null;
 let w=null;
-
-var extras = {}
-var extra = {}
-var platos = {}
-var inicial = {}
+var fg=null;
+var extras = {};
+var extra = {};
+var platos = {};
+var inicial = {};
+var fmesa = null;
+var ffilter_item = null;
+var fgroup = null;
+var all_tables = {};
+var tablesTotales=[];
 frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	w = wrapper;
 	 page = frappe.ui.make_app_page({
@@ -29,24 +34,48 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		}
 	})
 	
+	frappe.call({
+		method:"frappe.client.get_list",
+		args:{"doctype": "Restaurant Table","order_by":"name asc"},
+		async: false,
+		callback: function(r) {	all_tables = r.message }
+	})
+	tablesTotales=[];
+	for(var k in all_tables ){
+		tablesTotales.push(all_tables[k].name);
+	}
+	frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Setup"
+		},
+		async: true,
+		callback: function(r) {
+			sunat_setup = r.message;
+		}
+	})
 	var restaurantMenu = null;
 	frappe.call({async:false,method:"restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.get_menu", args:{restaurante:"greena" }, callback:function(res){ restaurantMenu =res.message }});
 	frappe.db.get_doc("Complementos del Plato").then(doc => {
 		toppings = doc
 	})
 	page.wrapperTemplate = page.wrapper.html(frappe.render_template("caja_del_restaurante", { restaurantMenu:restaurantMenu } ) )
-	let fmesa = frappe.ui.form.make_control({
+	fmesa = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".mesa"),
 		df: {
-			fieldtype: "Link",
-			options: "Restaurant Table",
+			fieldtype: "Select",
+			options: tablesTotales,
 			fieldname: "mesarestaurant",
 			placeholder: "Mesa número"
+		},
+		change: function(frm){
+			change_mesa( $('select[data-fieldname="mesarestaurant"]').val() );
 		},
 		render_input: true
 	});
 	fmesa.make();
-	let fg = frappe.ui.form.make_control({
+
+	fg = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".customer"),
 		df: {
 			fieldtype: "Link",
@@ -58,55 +87,106 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	});
 	fg.make();
 	
-	let item = frappe.ui.form.make_control({
+
+	ffilter_item = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".filter"),
 		df: {
 			fieldtype: "Link",
 			options: "Item",
 			fieldname: "items",
-			placeholder: "Insertar Producto"
+			placeholder: "Insertar Producto",
+			hidden:1
 		},
 		render_input: true
 	});
-	item.make();
-	let group = frappe.ui.form.make_control({
+	ffilter_item.make();
+
+	
+	ffilter_item = frappe.ui.form.make_control({
+		parent: page.wrapper.find(".filtrar"),
+		df: {
+			fieldtype: "Data",
+			fieldname: "filtros",
+			placeholder: "Filtrar los Productos"
+		},
+		change:function(frm){
+			$('input[data-fieldname="filtros"]').keyup(function(){
+				$(".item").show();
+				$(".item > span:not(:contains("+$('input[data-fieldname="filtros"]').val()+"))").parent().hide();
+			});
+		},
+		render_input: true
+	});
+	ffilter_item.make();
+	fgroup = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".group"),
 		df: {
 			fieldtype: "Link",
 			options: "Item Group",
 			fieldname: "groups",
-			placeholder: "Filtrar por"
+			placeholder: "Filtrar por",
+			hidden:1
 		},
 		render_input: true
 	});
-	group.make();
+	fgroup.make();
+	
+	change_mesa();
 
+}
+function change_mesa(mesa=""){
+	
+	$("#total_total").text("S/.0.00");
+	$("#total_igv").text("S/.0.00");
+	$("#total_subtotal").text("S/.0.00");
+	$("#menu_items").html('');
+	platos = {};
+	extras = {};
+	
 	frappe.call({
 		method: "restaurante.caja.get_init",
-		args: {},
+		args: {
+			restaurant_table: mesa
+		},
 		async: true,
 		callback: function(r) {
 			inicial = r.message;
 			console.log(inicial);
-			fmesa.set_value(inicial.mesa.name);
-			if(inicial.estado == "sucess"){
-				fg.set_value( inicial.data.customer );
-
-				let item_values = {
-						itemname:"producto1",
-						comentario: "que sea bajo en sal",
-						qty: 2,
-						rate: 32.50
+			$("#Titulo").html("Mesa - "+ inicial.mesa.name);
+			fmesa.set_value(inicial.mesa.name).then(function(e){
+				if(inicial.estado == "sucess"){
+					fg.set_value( inicial.data.customer ).then(function(e){
+						let item_values = {}
+						for(var w in inicial.data.items){
+							item_values = {};
+							var ld= inicial.data.items[w];
+							ld.extra = JSON.parse(ld.extra)
+							item_values.itemname = ld.item;
+							item_values.comentario = ld.extra.comentario;
+							item_values.qty = ld.qty;
+							item_values.rate = ld.rate;
+							let q=0;
+							while(ld.extra["item"+q] !== undefined){
+								if(extras=== undefined)
+								{
+									extras={};
+								}
+								extras["item"+q] = ld.extra["item"+q];
+								item_values["item"+q] = ld.extra["item"+q].value;
+								q++;
+							}
+							add_item(item_values);
+						}
+					});
 					
-				}
-				add_item()
-			}else{
-				fg.set_value("Anonimo")
-			}
-		}
-	})
 	
-	//console.log(frappe);
+				}else{
+					fg.set_value("Anonimo");
+				}
+			});
+			
+		}
+	});
 }
 function sendItem (name, rate){
 	name = window.atob(name)
@@ -118,7 +198,7 @@ function sendItem (name, rate){
 		fieldtype:"Int",
 		default: 1
 	});
-	extras={};	
+	extras={};
 	for (let i in toppings.complemento ){
 		topp = {
 			label: toppings.complemento[i].nombre,
@@ -177,18 +257,8 @@ function sendItem (name, rate){
 	
 	d.show();
 }
-
-/*
-values = {
-	itemname:"producto1"
-	item0: "Muy Picante"
-	item*: "Muy Picante"
-	comentario: "que sea bajo en sal"
-	qty: 2
-	rate: 32.50
-}
-*/
 function add_item(values){
+	
 	let i = 0
 	values.elements=[]
 	let idstring = ""
@@ -252,12 +322,11 @@ function add_item(values){
 		args: {
 			
 			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('input[data-fieldname="mesarestaurant"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
 			items:elementos
 		},
 		async: true,
 		callback: function(r) {
-			console.log(r.message)
 			if(r.message == "no encontrado"){
 				$("#"+values.id+"_href").hide()
 			}
@@ -267,7 +336,6 @@ function add_item(values){
 	
 	let elementos2 = [];
 	for (var o in platos){
-		console.log(extra[o]);
       elementos2.push({
       	"name": platos[o].itemname,
 	      "qty": platos[o].qty,
@@ -282,7 +350,7 @@ function add_item(values){
 		method: "restaurante.caja.saveTemporal",
 		args: {
 			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('input[data-fieldname="mesarestaurant"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
@@ -290,9 +358,7 @@ function add_item(values){
 			
 		},
 		async: false,
-		callback: function(r) {
-			//console.log(r.message)
-		},
+		callback: function(r) {},
 	})
 	
 	
@@ -312,12 +378,11 @@ function add_item(values){
 	})
 	
 }
-
 function plato_preparado(name,el){
 	id = el.id
 	id = id.replace("_href","")
 	let element = id
-	console.log(id)
+	//console.log(id)
 	id = id.replace(/_/g,"=")
 	id = window.atob( id )
 	let complementos=[];
@@ -375,7 +440,7 @@ function plato_servido(values, iditem ){
 		})
 	}
 	
-	console.log(data)
+	//console.log(data)
 	frappe.call({
 		async:false,
 		method:"restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.set_plato",
@@ -418,11 +483,24 @@ function pagarTodo(){
 				fieldtype:"Section Break",
 			})
 		}
-		complementos.push({
-			label: modosPagos.items[i].metodo_de_pago,
-			fieldname:"item"+i,
-			fieldtype:"Currency",
-		})
+		if(modosPagos.items[i].metodo_de_pago == "Efectivo")
+		{
+			complementos.push({
+				label: modosPagos.items[i].metodo_de_pago,
+				fieldname:modosPagos.items[i].metodo_de_pago,
+				fieldtype:"Currency",
+				placeholder:"0.00",
+				default: parseFloat( $("#total_total").text().replace("S/.", "") )
+			})
+		}else{
+			complementos.push({
+				label: modosPagos.items[i].metodo_de_pago,
+				fieldname:modosPagos.items[i].metodo_de_pago,
+				fieldtype:"Currency",
+				placeholder:"0.00"
+			})
+		}
+		
 		if(i % 2 == 0 ){
 			complementos.push({
 				label:"",
@@ -440,7 +518,12 @@ function pagarTodo(){
 			label:"Tipo de Comprobante",
 			fieldname:"tipo_comprobante",
 			fieldtype:"Select",
-			options:"Factura\nBoleta\nOtro"
+			options:[
+				"",
+				"Factura",
+				"Boleta"
+			],
+			default:""
 		})
 		
 	let d = new frappe.ui.Dialog({
@@ -448,10 +531,75 @@ function pagarTodo(){
 		fields: complementos,
 		primary_action_label: 'Enviar',
 		primary_action(values) {
-			plato_servido(values , id)
+			generarVenta(values)
 			d.hide();
 		}
 	});
 	
 	d.show();
 }
+function generarVenta(values){
+	var elementos=[];
+	
+	for (var o in platos){
+      elementos.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "uom": "Números",
+	      "rate": platos[o].rate
+      });
+	}
+	var payments= [];
+	var tipoComprobante = 0
+	if("tipo_comprobante" in values){
+		tipoComprobante = 1
+	}
+	for ( var s in values ){
+		if(values[s] !== "tipo_comprobante")
+		{
+			if(values[s] > 0){
+				payments.push({
+					amount: values[s],
+					mode_of_payment: s
+				});
+			}
+		}
+	}
+	frappe.call({
+		method: "restaurante.caja.validar",
+		args: {
+			
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			items:elementos,
+			payments: payments,
+			tipoComprobante:tipoComprobante
+			
+		},
+		async: true,
+		callback: function(r) {
+			if(r.message == "no encontrado"){
+				limpiar();
+			}
+		},
+	});
+}
+function limpiar(){
+	frappe.call({
+		method: "restaurante.caja.remove_temporal",
+		args: {
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val()
+		},
+		async: true,
+		callback: function(r) {
+			$("#total_total").text("S/.0.00");
+			$("#total_igv").text("S/.0.00");
+			$("#total_subtotal").text("S/.0.00");
+			$("#menu_items").html('');
+			platos = {};
+			extras = {};
+		}
+	})
+}
+
+

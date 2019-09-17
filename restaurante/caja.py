@@ -11,8 +11,11 @@ from frappe import utils
 from erpnext.controllers.queries import item_query
 
 @frappe.whitelist()
-def get_init():
-  respuesta   = frappe.get_all( "Restaurant Table", order_by="name asc", limit_page_length = 1)
+def get_init(restaurant_table = ""):
+  if restaurant_table == "":
+    respuesta   = frappe.get_all( "Restaurant Table", order_by="name asc", limit_page_length = 1)
+  else:
+    respuesta = [{"name":restaurant_table}]
   estado = "sucess"
   get_datos = {}
   if  frappe.db.exists("Restaurant Table Temp", "Restemp-" + respuesta[0].name ):
@@ -68,7 +71,6 @@ def sync(restaurant_table, items, ct="Anonimo"):
       "selling_price_list": menu.price_list,
       "ignore_pricing_rule": 1,
       "update_stock": 1,
-      "taxes_and_charges": restaurant.default_tax_template,
       "apply_discount_on": "Grand Total",
       "set_warehouse": stock.default_warehouse,
       "restaurant_table": restaurant_table,
@@ -97,15 +99,15 @@ def sync(restaurant_table, items, ct="Anonimo"):
   return doc
 
 @frappe.whitelist()
-def validar(restaurant_table, items, payments, customer="Anonimo"):
+def validar(restaurant_table, items, payments, tipoComprobante=0, customer="Anonimo"):
   
   items      = json.loads(items)
+  payments   = json.loads(payments)
   customer   = frappe.get_doc( "Customer", customer )
   restaurant = frappe.get_last_doc("Restaurant")
   globales   = frappe.get_doc( "Global Defaults" )
   company    = frappe.get_doc( "Company", globales.default_company )
   stock      = frappe.get_doc( "Stock Settings" )
-  doc        = frappe.get_doc("Sales Invoice",{"restaurant_table": restaurant_table, "docstatus":0 })
   sunat      = frappe.get_doc("Setup")
   itemList   = []
   
@@ -114,7 +116,7 @@ def validar(restaurant_table, items, payments, customer="Anonimo"):
   doc = frappe.get_doc('Sales Invoice',docname )
   doc.tax_id = customer.tax_id
   doc.customer = customer.name
-  doc.docstatus = 1
+  
   doc.items=[]
   for item in items:
     doc.append('items',{
@@ -123,19 +125,22 @@ def validar(restaurant_table, items, payments, customer="Anonimo"):
       "uom": stock.stock_uom,
       "rate": item["rate"]
     })
-  doc.append('taxes', {
-    "docstatus": 1,
-    "charge_type": "On Net Total",
-    "account_head": "VAT - "+company.abbr,
-    "description": "VAT @ "+sunat.igv+".0",
-    "included_in_print_rate": 1,
-    "rate": int(sunat.igv)
-  })
+  doc.taxes_and_charges = ""
+  if tipoComprobante == 1:
+    doc.taxes_and_charges = restaurant.default_tax_template
+    doc.append('taxes', {
+      "charge_type": "On Net Total",
+      "account_head": "VAT - "+str(company.abbr),
+      "description": "VAT @ "+str( sunat.igv )+".0",
+      "included_in_print_rate": 1,
+      "rate": int(sunat.igv)
+    })
   for payment in payments:
     doc.append('payments', {
-      "mode_of_payment": payment.mode_of_payment,
-      "amount": float(payment.amount)
+      "mode_of_payment": payment["mode_of_payment"],
+      "amount": float(payment["amount"])
     })
+  doc.save()
   doc.submit()
   return doc
   
@@ -187,3 +192,10 @@ def saveTemporal(restaurant_table, items,total,subtotal,igv, customer="Anonimo")
   temp.save()
   return temp
   
+@frappe.whitelist()
+def remove_temporal(restaurant_table):
+  if frappe.db.exists("Restaurant Table Temp","Restemp-"+restaurant_table):
+    doc = frappe.delete_doc("Restaurant Table Temp","Restemp-"+restaurant_table)
+  else:
+    doc = {"exc_type":"DoesNotExistError"}
+  return doc
