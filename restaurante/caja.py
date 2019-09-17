@@ -14,19 +14,29 @@ from erpnext.controllers.queries import item_query
 def get_init(restaurant_table = ""):
   if restaurant_table == "":
     respuesta   = frappe.get_all( "Restaurant Table", order_by="name asc", limit_page_length = 1)
+    estado = "sucess"
+    get_datos = {}
+    if  frappe.db.exists("Restaurant Table Temp", "Restemp-" + respuesta[0].name ):
+      get_datos   = frappe.get_doc("Restaurant Table Temp","Restemp-" + respuesta[0].name )
+    else:
+      estado = "error"
+    return {
+      "estado": estado,
+      "data": get_datos,
+      "mesa": respuesta[0]
+    }
   else:
-    respuesta = [{"name":restaurant_table}]
-  estado = "sucess"
-  get_datos = {}
-  if  frappe.db.exists("Restaurant Table Temp", "Restemp-" + respuesta[0].name ):
-    get_datos   = frappe.get_doc("Restaurant Table Temp","Restemp-" + respuesta[0].name )
-  else:
-    estado = "error"
-  return {
-    "estado": estado,
-    "data": get_datos,
-    "mesa": respuesta[0]
-  }
+    estado = "sucess"
+    get_datos = {}
+    if  frappe.db.exists("Restaurant Table Temp", "Restemp-" + restaurant_table ):
+      get_datos   = frappe.get_doc("Restaurant Table Temp","Restemp-" + restaurant_table )
+    else:
+      estado = "error"
+    return {
+      "estado": estado,
+      "data": get_datos,
+      "mesa": restaurant_table
+    }
 
 @frappe.whitelist()
 def ckeck_ingredientes_item(id):
@@ -194,6 +204,7 @@ def saveTemporal(restaurant_table, items,total,subtotal,igv, customer="Anonimo")
   
 @frappe.whitelist()
 def remove_temporal(restaurant_table):
+  
   if frappe.db.exists("Restaurant Table Temp","Restemp-"+restaurant_table):
     doc = frappe.delete_doc("Restaurant Table Temp","Restemp-"+restaurant_table)
   else:
