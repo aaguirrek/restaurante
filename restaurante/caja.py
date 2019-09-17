@@ -11,6 +11,21 @@ from frappe import utils
 from erpnext.controllers.queries import item_query
 
 @frappe.whitelist()
+def get_init():
+  respuesta   = frappe.get_all( "Restaurant Table", order_by="name asc", limit_page_length = 1)
+  estado = "sucess"
+  get_datos = {}
+  if  frappe.db.exists("Restaurant Table Temp", "Restemp-" + respuesta[0].name ):
+    get_datos   = frappe.get_doc("Restaurant Table Temp","Restemp-" + respuesta[0].name )
+  else:
+    estado = "error"
+  return {
+    "estado": estado,
+    "data": get_datos,
+    "mesa": respuesta[0]
+  }
+
+@frappe.whitelist()
 def ckeck_ingredientes_item(id):
   if frappe.db.exists("Ingredientes",{"name":id}):
     return "encontrado"
@@ -34,6 +49,8 @@ def sync(restaurant_table, items, ct="Anonimo"):
       "uom": stock.stock_uom,
       "rate": item["rate"]
     })
+ 
+    
   if not frappe.db.exists("Sales Invoice",{"restaurant_table": restaurant_table, "docstatus":0 }):
     doc = frappe.get_doc({
       "doctype":"Sales Invoice",
@@ -68,15 +85,15 @@ def sync(restaurant_table, items, ct="Anonimo"):
     })
     doc.insert()
   else:
-    
     docname = frappe.db.get_value('Sales Invoice', {'docstatus': 0 , 'restaurant_table': restaurant_table })
     doc = frappe.get_doc('Sales Invoice',docname )
     doc.customer = customer.name
+    doc.docstatus = 0
     doc.tax_id = customer.tax_id
     doc.items=[]
     for iteml in itemList:
       doc.append('items', iteml )
-    doc.submit()
+    doc.save()
   return doc
 
 @frappe.whitelist()
@@ -84,6 +101,9 @@ def validar(restaurant_table, items, payments, customer="Anonimo"):
   
   items      = json.loads(items)
   customer   = frappe.get_doc( "Customer", customer )
+  restaurant = frappe.get_last_doc("Restaurant")
+  globales   = frappe.get_doc( "Global Defaults" )
+  company    = frappe.get_doc( "Company", globales.default_company )
   stock      = frappe.get_doc( "Stock Settings" )
   doc        = frappe.get_doc("Sales Invoice",{"restaurant_table": restaurant_table, "docstatus":0 })
   sunat      = frappe.get_doc("Setup")
@@ -106,11 +126,64 @@ def validar(restaurant_table, items, payments, customer="Anonimo"):
   doc.append('taxes', {
     "docstatus": 1,
     "charge_type": "On Net Total",
-    "account_head": "VAT - T",
+    "account_head": "VAT - "+company.abbr,
     "description": "VAT @ "+sunat.igv+".0",
     "included_in_print_rate": 1,
     "rate": int(sunat.igv)
   })
+  for payment in payments:
+    doc.append('payments', {
+      "mode_of_payment": payment.mode_of_payment,
+      "amount": float(payment.amount)
+    })
   doc.submit()
-  
   return doc
+  
+@frappe.whitelist()
+def saveTemporal(restaurant_table, items,total,subtotal,igv, customer="Anonimo"):
+  items      = json.loads(items)
+  globales   = frappe.get_doc( "Global Defaults" )
+  customer   = frappe.get_doc( "Customer", customer )
+  itemsTemp  = []
+  
+  for item in items:
+    servido = 0
+    extras  = ""
+    tipo    = "Directo"
+    servido = item["servido"]
+    extras  = json.dumps(item["extras"])
+    tipo    = item["tipo"]
+    itemsTemp.append({
+      "item": item["name"],
+      "qty": item["qty"],
+      "rate": item["rate"],
+      "extra": extras,
+      "servido": servido,
+      "tipo": tipo
+    })
+  
+  if frappe.db.exists("Restaurant Table Temp","Restemp-"+restaurant_table):
+    temp = frappe.get_doc("Restaurant Table Temp", "Restemp-"+restaurant_table )
+    temp.mesa = restaurant_table
+    temp.customer =customer.name
+    temp.total = total
+    temp.subtotal = subtotal
+    temp.igv = igv
+    temp.items=[]
+    for iteml in itemsTemp:
+      temp.append('items', iteml )
+    
+  else:
+    temp = frappe.get_doc({
+      "doctype":"Restaurant Table Temp",
+      "mesa": restaurant_table,
+      "customer":customer.name,
+      "total": total,
+      "subtotal": subtotal,
+      "igv": igv,
+      "items": itemsTemp
+    })
+    temp.insert()
+  temp.save()
+  return temp
+  

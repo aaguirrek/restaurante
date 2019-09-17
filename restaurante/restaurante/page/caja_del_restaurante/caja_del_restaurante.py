@@ -93,7 +93,3 @@ def set_plato(data, customer="Anonimo" ):
     doc.insert(ignore_permissions = True)
     doc.submit()
     return doc
-
-@frappe.whitelist()
-def sync(customer="", mesa="", restaurant="", items=""):
-    return

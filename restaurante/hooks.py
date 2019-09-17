@@ -16,18 +16,18 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/restaurante/css/restaurante.css"
-app_include_js = "/assets/restaurante/js/restaurante.js"
+# app_include_js = "/assets/restaurante/js/restaurante.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/restaurante/css/restaurante.css"
 # web_include_js = "/assets/restaurante/js/restaurante.js"
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+# page_js = {"modules" : "/assets/restaurante/js/restaurante.js"}
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+# doctype_list_js = {"doctype" : "/assets/restaurante/js/restaurante.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
