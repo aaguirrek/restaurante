@@ -199,6 +199,7 @@ function sendItem (name, rate){
 		default: 1
 	});
 	extras={};
+	
 	for (let i in toppings.complemento ){
 		topp = {
 			label: toppings.complemento[i].nombre,
@@ -283,7 +284,7 @@ function add_item(values){
 		values.qty = qty;
 	}else{
 		let template = frappe.render_template("item", { values:values } );
-		$("#menu_items").append(template);	
+		$("#menu_items").append(template);
 	}
 	let itotal=parseFloat( $("#total_total").text().replace("S/.", "") );
 	let iitem = parseFloat(values.rate);
@@ -339,7 +340,7 @@ function add_item(values){
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
 		},
 		async: false,
 		callback: function(r) {},
@@ -379,17 +380,18 @@ function plato_preparado(name,el){
 			ingredientes = r.message
 		}
 	})
-	for ( var i in ingredientes.items ){
-		let item = ingredientes.items[i]
-		complementos.push({
-			label: item.item_name+" en "+item.uom,
-			fieldname: item.item,
-			fieldtype:"Float",
-			default: item.qty
-		})
-	}
-	
-	let d = new frappe.ui.Dialog({
+	if( ingredientes.auto == 1){
+		for ( var i in ingredientes.items ){
+			let item = ingredientes.items[i]
+			complementos.push({
+				label: item.item_name+" en "+item.uom,
+				fieldname: item.item,
+				fieldtype:"Float",
+				default: item.qty
+			})
+		}
+		
+		let d = new frappe.ui.Dialog({
 		title: name,
 		fields: complementos,
 		primary_action_label: 'Enviar',
@@ -400,6 +402,18 @@ function plato_preparado(name,el){
 	});
 	
 	d.show();
+	
+	
+	}else{
+		var values = {};
+		for ( var i in ingredientes.items ){
+			let item = ingredientes.items[i];
+			values[item.item] = item.qty;
+		}
+		plato_servido(values , id)
+	}
+	
+	
 }
 function plato_servido(values, iditem ){
 	cliente = "Anonimo"
@@ -560,7 +574,7 @@ function generarVenta(values){
 	for ( var s in values ){
 		if(values[s] !== "tipo_comprobante")
 		{
-			if(values[s] > 0){
+			if(values[s] > 0 && s != "numero_doc" && s != "email"  ){
 				payments.push({
 					amount: values[s],
 					mode_of_payment: s
@@ -581,7 +595,7 @@ function generarVenta(values){
 		},
 		async: true,
 		callback: function(r) {
-			if(r.message == "no encontrado"){
+			if(r.exc_type == "DoesNotExistError"){
 				generar_comprobante(values);
 			}
 		},
@@ -601,8 +615,16 @@ function limpiar(){
 			$("#menu_items").html('');
 			platos = {};
 			extras = {};
+			frappe.show_alert({
+				message:"mesa limpiada",
+				time:5,
+				indicator:'green'
+				
+			});
+			location.reload();
 		}
 	})
+	
 }
 function plato_minus(item_name,item){
 	
@@ -610,7 +632,7 @@ function plato_minus(item_name,item){
 	elid = elid.replace("_minus","");
 	if(platos[elid].qty > 1)
 	{
-		platos[elid].qty = platos[elid].qty - 1;	
+		platos[elid].qty = platos[elid].qty - 1;
 		let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
 		itot = itot - platos[elid].rate;
 		let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
@@ -662,7 +684,7 @@ function plato_minus(item_name,item){
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
 		},
 		async: false,
 		callback: function(r) {},
@@ -673,7 +695,7 @@ function plato_plus(item_name,item){
 	elid = elid.replace("_plus","");
 	if(platos[elid].qty > 1)
 	{
-		platos[elid].qty = platos[elid].qty + 1;	
+		platos[elid].qty = platos[elid].qty + 1;
 		let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
 		itot = itot + platos[elid].rate;
 		let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
@@ -725,7 +747,7 @@ function plato_plus(item_name,item){
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
 		},
 		async: false,
 		callback: function(r) {},
@@ -789,13 +811,14 @@ function plato_delete(item_name,item){
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
 		},
 		async: false,
 		callback: function(r) {},
 	});
 }
 function generar_comprobante(values){
+	console.log("generando");
 	var settings = {
 		"async": false,
 		"crossDomain": true,
@@ -809,6 +832,7 @@ function generar_comprobante(values){
 	
 	var metodo="";
 	if(values.tipo_comprobante == ""){
+		frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
 		limpiar();
 		return;
 	}
@@ -819,14 +843,20 @@ function generar_comprobante(values){
 		metodo="sunat.sunat.doctype.factura.factura.Nubefact";
 	}
 
-	var response = null;	
+	var response = null;
 	let address = "";
 	if( (values.numero_doc).length == 11){
 		settings.url = "https://lobellum.cf/api/services/ruc/"+values.numero_doc;
 		response = JSON.parse( $.ajax(settings).responseText );
 	}else{
-		settings.url = "https://lobellum.cf/api/services/dni/"+values.numero_doc
-		response = JSON.parse( $.ajax(settings).responseText );
+		if( (values.numero_doc).length == 8 ){
+			settings.url = "https://lobellum.cf/api/services/dni/"+values.numero_doc
+			response = JSON.parse( $.ajax(settings).responseText );
+		}else{
+			response = {};
+			response.data = {};
+			response.data.name = "VARIOS";
+		}
 	}
 	if("address" in response.data ){
 		address = response.data.address;
@@ -858,16 +888,24 @@ function generar_comprobante(values){
 	var today = new Date();
 	var dd = today.getDate();
 	var DD = today.getDate();
-	var mm = today.getMonth()+1; 
+	var mm = today.getMonth()+1;
 	var yyyy = today.getFullYear();
 	if(dd<10){
 		dd='0'+dd;
-	} 
+	}
 	if(DD<10){
 		DD='0'+(DD+1);
-	} 
+	}
 	if(mm<10){
 		mm='0'+mm;
+	}
+	
+	if("numero_doc" in values){
+		if(values.numero_doc=""){
+			values.numero_doc = "OTROS";
+		}
+	}else{
+		values.numero_doc = "OTROS";
 	}
 
 	var itemList   = [];
@@ -880,21 +918,25 @@ function generar_comprobante(values){
 	for(var n in platos ){
 		itli = platos[n];
 		unit_total = itli.qty * itli.rate;
-		igv_unit = parseFloat( parseFloat( itli.rate * sunat_setup.igv)/(100 + sunat_setup.igv ).toFixed(2));
-		valor_unit = itli.rate - igv_unit;
-		valor_tot = itli.qty * itli.valor_unit;
-		itemList.append({
+		igv_unit = parseFloat( parseFloat( itli.rate * sunat_setup.igv )/(100 + sunat_setup.igv )).toFixed(2);
+		valor_unit = parseFloat(itli.rate) - parseFloat(igv_unit);
+		valor_tot = parseFloat(itli.qty) * parseFloat(valor_unit);
+		console.log(igv_unit)
+		console.log(valor_unit)
+		console.log(valor_tot)
+		itemList.push({
 			"unidad_de_medida": "Números",
 			"codigo": itli.itemname,
 			"codigo_interno": itli.itemname,
 			"codigo_producto_sunat": "90101501",
-			"descripcion": "",
+			"descripcion": itli.itemname,
 			"cantidad": itli.qty,
 			"valor_unitario": valor_unit,
 			"precio_unitario": itli.rate,
 			"descuento": "",
 			"subtotal": valor_tot,
 			"tipo_de_igv": 1,
+			"tipo_igv":1,
 			"igv": unit_total - valor_tot,
 			"porcentaje_igv": sunat_setup.igv,
 			"total": unit_total
@@ -997,7 +1039,8 @@ function generar_comprobante(values){
 		async:false,
 		args:{form:form_doc},
 		callback:function(r){
-			limpiar();		
+			frappe. msgprint({message: values.tipo_comprobante+' ha sido emitida con éxito <br/><br/> <a href="'+response2.enlace_del_pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a>',title: values.tipo_comprobante+' emitida', indicator:'green'});
+			limpiar();
 		}
 	});
 	

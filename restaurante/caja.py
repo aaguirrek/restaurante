@@ -207,6 +207,7 @@ def remove_temporal(restaurant_table):
   if frappe.db.exists("Sales Invoice",{"restaurant_table": restaurant_table, "docstatus":0 }):
     docname = frappe.db.get_value('Sales Invoice', {'docstatus': 0 , 'restaurant_table': restaurant_table })
     frappe.delete_doc("Restaurant Table Temp","Restemp-" + docname)
+    
   if frappe.db.exists("Restaurant Table Temp","Restemp-"+restaurant_table):
     doc = frappe.delete_doc("Restaurant Table Temp","Restemp-"+restaurant_table)
   else:
