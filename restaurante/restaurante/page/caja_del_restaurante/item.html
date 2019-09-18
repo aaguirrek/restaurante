@@ -2,13 +2,13 @@
     <div class="row" style="border-bottom: 1px solid #ddd; padding-bottom:7px">
         <div class="row">
             <div class="title col-md-1">
-                <a onclick="plato_delete()"><i class="octicon octicon-circle-slash" style="color:#ff5858"></i></a>
+                <a onclick="plato_delete( \'{{values.itemname}}\' , this )" id="{{values.id}}_delete" ><i class="octicon octicon-circle-slash" style="color:#ff5858"></i></a>
             </div>
             <div class="title col-md-5" style="font-size: 9pt;">{{values.itemname}}</div>
             <div class="title col-md-2" style="padding-left: 3px;padding-right: 3px;font-size: 9pt;">
-                <a onclick=""><i class="octicon octicon-dash" style="color:#5e64ff;padding-left: 4px;padding-right: 4px;"></i>
-                </a><span id="{{values.id}}_qty">{{values.qty}}</span><a onclick="">
-                <i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a>
+                <a onclick="plato_minus( \'{{values.itemname}}\' , this )" id="{{values.id}}_minus" ><i class="octicon octicon-dash" style="color:#5e64ff;padding-left: 4px;padding-right: 4px;"></i></a>
+                <span id="{{values.id}}_qty">{{values.qty}}</span>
+                <a onclick="plato_plus( \'{{values.itemname}}\' , this )" id="{{values.id}}_plus" ><i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a>
             </div>
             <div class="title col-md-1">
                 <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" ><i class="octicon octicon-bell" style="color:#98d85b"></i></a>

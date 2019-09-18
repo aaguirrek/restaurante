@@ -258,7 +258,6 @@ function sendItem (name, rate){
 	d.show();
 }
 function add_item(values){
-	
 	let i = 0
 	values.elements=[]
 	let idstring = ""
@@ -273,25 +272,19 @@ function add_item(values){
 	}else{
 		extras.comentario = "";
 	}
-	
-	idstring += values.comentario
+	idstring += values.comentario;
 	let id = window.btoa(values.itemname+"|"+idstring);
 	id = id.replace(/=/g, "_");
-	values.id=id
-	
-	
+	values.id=id;
 	if( $("#"+id+"_id" ).length ){
 		let qty = (parseInt( $("#"+id+"_qty").text() ) + parseInt( values.qty ) );
 		$("#"+id+"_qty").text( qty );
 		$("#"+id+"_rate").text( qty * parseFloat(values.rate) );
 		values.qty = qty;
-		
 	}else{
 		let template = frappe.render_template("item", { values:values } );
-		$("#menu_items").append(template);
-		
+		$("#menu_items").append(template);	
 	}
-	
 	let itotal=parseFloat( $("#total_total").text().replace("S/.", "") );
 	let iitem = parseFloat(values.rate);
 	let iqty = parseInt(values.qty);
@@ -304,9 +297,7 @@ function add_item(values){
 	values.qty = iqty;
 	platos[values.id] = values;
 	extra[values.id] = extras;
-
 	var elementos=[];
-	
 	for (var o in platos){
       elementos.push({
       	"name": platos[o].itemname,
@@ -315,12 +306,9 @@ function add_item(values){
 	      "rate": platos[o].rate
       });
 	}
-	
-	
 	frappe.call({
 		method: "restaurante.caja.sync",
 		args: {
-			
 			customer:$('input[data-fieldname="customer"]').val(),
 			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
 			items:elementos
@@ -331,9 +319,7 @@ function add_item(values){
 				$("#"+values.id+"_href").hide()
 			}
 		},
-	})
-	
-	
+	});
 	let elementos2 = [];
 	for (var o in platos){
       elementos2.push({
@@ -345,7 +331,6 @@ function add_item(values){
 		  "tipo": "Directo"
       })
 	}
-	
 	frappe.call({
 		method: "restaurante.caja.saveTemporal",
 		args: {
@@ -354,15 +339,12 @@ function add_item(values){
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") ),
-			
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
 		},
 		async: false,
 		callback: function(r) {},
-	})
-	
-	
-	let tipo = ""
+	});
+	let tipo = "";
 	frappe.call({
 		method: "restaurante.caja.ckeck_ingredientes_item",
 		args: {
@@ -375,8 +357,7 @@ function add_item(values){
 				$("#"+values.id+"_href").hide()
 			}
 		},
-	})
-	
+	});
 }
 function plato_preparado(name,el){
 	id = el.id
@@ -515,17 +496,39 @@ function pagarTodo(){
 		fieldtype:"Section Break",
 	})
 	complementos.push({
-			label:"Tipo de Comprobante",
-			fieldname:"tipo_comprobante",
-			fieldtype:"Select",
-			options:[
-				"",
-				"Factura",
-				"Boleta"
-			],
-			default:""
-		})
-		
+		label:"Tipo de Comprobante",
+		fieldname:"tipo_comprobante",
+		fieldtype:"Select",
+		options:[
+			"",
+			"Factura",
+			"Boleta"
+		],
+		default:""
+	})
+	complementos.push({
+		label:"Desea Boleta / Factura",
+		fieldname:"pagar_section_break_2",
+		fieldtype:"Section Break",
+	})
+	complementos.push({
+		label:"Ruc/Dni",
+		fieldname:"numero_doc",
+		fieldtype:"Data",
+		default:""
+	})
+	complementos.push({
+		fieldname:"Column Break",
+		fieldtype:"Column Break",
+		default:""
+	})
+	complementos.push({
+		label:"Correo Electrónico",
+		fieldname:"email",
+		fieldtype:"Data",
+		default:""
+	})
+
 	let d = new frappe.ui.Dialog({
 		title: name,
 		fields: complementos,
@@ -579,7 +582,7 @@ function generarVenta(values){
 		async: true,
 		callback: function(r) {
 			if(r.message == "no encontrado"){
-				limpiar();
+				generar_comprobante(values);
 			}
 		},
 	});
@@ -601,5 +604,402 @@ function limpiar(){
 		}
 	})
 }
+function plato_minus(item_name,item){
+	
+	elid = item.id
+	elid = elid.replace("_minus","");
+	if(platos[elid].qty > 1)
+	{
+		platos[elid].qty = platos[elid].qty - 1;	
+		let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
+		itot = itot - platos[elid].rate;
+		let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
+		let subt= itot - iigv;
 
+		$("#total_total").text("S/." + itot );
+		$("#total_subtotal").text("S/." + subt);
+		$("#total_igv").text("S/." + iigv );
+	}
+	var elementos=[];
+	for (var o in platos){
+      elementos.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "uom": "Números",
+	      "rate": platos[o].rate
+      });
+	}
+	frappe.call({
+		method: "restaurante.caja.sync",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			items:elementos
+		},
+		async: true,
+		callback: function(r) {
+			if(r.message == "no encontrado"){
+				$("#"+values.id+"_href").hide()
+			}
+		},
+	});
+	let elementos2 = [];
+	for (var o in platos){
+      elementos2.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "rate": platos[o].rate,
+		  "extras": extra[o],
+		  "servido": 0,
+		  "tipo": "Directo"
+      })
+	}
+	frappe.call({
+		method: "restaurante.caja.saveTemporal",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
+			items: elementos2,
+			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+		},
+		async: false,
+		callback: function(r) {},
+	});
+}
+function plato_plus(item_name,item){
+	elid = item.id
+	elid = elid.replace("_plus","");
+	if(platos[elid].qty > 1)
+	{
+		platos[elid].qty = platos[elid].qty + 1;	
+		let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
+		itot = itot + platos[elid].rate;
+		let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
+		let subt= itot - iigv;
 
+		$("#total_total").text("S/." + itot );
+		$("#total_subtotal").text("S/." + subt);
+		$("#total_igv").text("S/." + iigv );
+	}
+	var elementos=[];
+	for (var o in platos){
+      elementos.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "uom": "Números",
+	      "rate": platos[o].rate
+      });
+	}
+	frappe.call({
+		method: "restaurante.caja.sync",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			items:elementos
+		},
+		async: true,
+		callback: function(r) {
+			if(r.message == "no encontrado"){
+				$("#"+values.id+"_href").hide()
+			}
+		},
+	});
+	let elementos2 = [];
+	for (var o in platos){
+      elementos2.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "rate": platos[o].rate,
+		  "extras": extra[o],
+		  "servido": 0,
+		  "tipo": "Directo"
+      })
+	}
+	frappe.call({
+		method: "restaurante.caja.saveTemporal",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
+			items: elementos2,
+			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+		},
+		async: false,
+		callback: function(r) {},
+	});
+}
+function plato_delete(item_name,item){
+	elid = item.id;
+	elid = elid.replace("_delete","");
+	let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
+	itot = itot - ( platos[elid].qty + platos[elid].rate );
+	let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
+	let subt= itot - iigv;
+
+	$("#total_total").text("S/." + itot );
+	$("#total_subtotal").text("S/." + subt);
+	$("#total_igv").text("S/." + iigv );
+
+	delete platos[elid];
+	delete extra[elid];
+
+	$("#" + elid + "_id").remove();
+	var elementos=[];
+	for (var o in platos){
+      elementos.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "uom": "Números",
+	      "rate": platos[o].rate
+      });
+	}
+	frappe.call({
+		method: "restaurante.caja.sync",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			items:elementos
+		},
+		async: true,
+		callback: function(r) {
+			if(r.message == "no encontrado"){
+				$("#"+values.id+"_href").hide()
+			}
+		},
+	});
+	let elementos2 = [];
+	for (var o in platos){
+      elementos2.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "rate": platos[o].rate,
+		  "extras": extra[o],
+		  "servido": 0,
+		  "tipo": "Directo"
+      })
+	}
+	frappe.call({
+		method: "restaurante.caja.saveTemporal",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
+			items: elementos2,
+			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )	
+		},
+		async: false,
+		callback: function(r) {},
+	});
+}
+function generar_comprobante(values){
+	var settings = {
+		"async": false,
+		"crossDomain": true,
+		"method": "GET",
+		"headers": {
+			"Content-Type": "application/json",
+			"Authorization": "Bearer m5TX5llKHKx3WhIGBqNqX3VLozorFcz7yBxtpAWXGFojX7brWA"
+		},
+		"data": ""
+	}
+	
+	var metodo="";
+	if(values.tipo_comprobante == ""){
+		limpiar();
+		return;
+	}
+	if(values.tipo_comprobante == "Boleta"){
+		metodo="sunat.sunat.doctype.boleta.boleta.Nubefact";
+	}
+	if(values.tipo_comprobante == "Factura"){
+		metodo="sunat.sunat.doctype.factura.factura.Nubefact";
+	}
+
+	var response = null;	
+	let address = "";
+	if( (values.numero_doc).length == 11){
+		settings.url = "https://lobellum.cf/api/services/ruc/"+values.numero_doc;
+		response = JSON.parse( $.ajax(settings).responseText );
+	}else{
+		settings.url = "https://lobellum.cf/api/services/dni/"+values.numero_doc
+		response = JSON.parse( $.ajax(settings).responseText );
+	}
+	if("address" in response.data ){
+		address = response.data.address;
+	}
+	cliente_numero_de_documento = values.numero_doc;
+	let total = {
+		descuento_global: "",
+		total_anticipo: "",
+		total_gravada: "",
+		total_inafecta: "",
+		total_exonerada: "",
+		total_igv: "",
+		total_gratuita: "",
+		total_otros_cargos: "",
+		total_incluido_percepcion: "",
+		total_impuestos_bolsas: "",
+		total: ""
+	};
+	var cliente_email="";
+	if( "email" in values){
+		cliente_email = values.email;
+	}
+	total.total_gravada = ($("#total_subtotal").html()).replace("S/.","");
+	total.total_igv = ($("#total_igv").html()).replace("S/.","");
+	total.total = ($("#total_total").html()).replace("S/.","");
+	if( "total_impuestos_bolsas" in values ){
+		total.total_impuestos_bolsas = values.total_impuestos_bolsas;
+	}
+	var today = new Date();
+	var dd = today.getDate();
+	var DD = today.getDate();
+	var mm = today.getMonth()+1; 
+	var yyyy = today.getFullYear();
+	if(dd<10){
+		dd='0'+dd;
+	} 
+	if(DD<10){
+		DD='0'+(DD+1);
+	} 
+	if(mm<10){
+		mm='0'+mm;
+	}
+
+	var itemList   = [];
+	var itli	   = {};
+	var unit_total = 0;
+	var valor_unit = 0;
+	var igv_unit   = 0;
+	var valor_tot  = 0;
+	
+	for(var n in platos ){
+		itli = platos[n];
+		unit_total = itli.qty * itli.rate;
+		igv_unit = parseFloat( parseFloat( itli.rate * sunat_setup.igv)/(100 + sunat_setup.igv ).toFixed(2));
+		valor_unit = itli.rate - igv_unit;
+		valor_tot = itli.qty * itli.valor_unit;
+		itemList.append({
+			"unidad_de_medida": "Números",
+			"codigo": itli.itemname,
+			"codigo_interno": itli.itemname,
+			"codigo_producto_sunat": "90101501",
+			"descripcion": "",
+			"cantidad": itli.qty,
+			"valor_unitario": valor_unit,
+			"precio_unitario": itli.rate,
+			"descuento": "",
+			"subtotal": valor_tot,
+			"tipo_de_igv": 1,
+			"igv": unit_total - valor_tot,
+			"porcentaje_igv": sunat_setup.igv,
+			"total": unit_total
+		});
+	}
+	let response22 = null;
+	frappe.call({
+		method:metodo,
+		async:false,
+		args:{
+			cliente:{
+				numero_documento: values.numero_doc,
+				razon_social: response.data.name,
+				direccion: address,
+				cliente_email:cliente_email
+			},
+			items: itemList,
+			fecha:{
+				fecha_de_emision: yyyy+"-"+mm+"-"+dd,
+				fecha_de_vencimiento: yyyy+"-"+mm+"-"+DD
+			},
+			total: total,
+			documento:{
+				exportacion: 0,
+				tipo_de_cambio:"",
+				percepcion_tipo:"",
+				percepcion_base_imponible:"",
+				total_percepcion:"",
+				detraccion:"",
+				observaciones:"",
+				codigo_unico:"",
+				medio_de_pago:"",
+				condiciones_de_pago:""
+			},
+			guia:{
+				placa_vehiculo:""
+			}
+		
+		},
+		callback: function(res){
+			response2 = JSON.parse( res.message )
+		}
+	})
+	if("errors" in response2 ){
+		return frappe.throw( response2.errors )
+	}
+	frappe.call({
+		"method": "frappe.client.set_value",
+		"args": {
+		"doctype":"Setup",
+		"name":"Setup",
+		"fieldname":"numero_boleta",
+		"value": response2.numero + 1
+		},
+		async: false
+	});
+	var form_doc = {
+		cliente:{
+			numero_documento: values.numero_doc,
+			razon_social: response.data.name,
+			direccion: address,
+			cliente_email:cliente_email
+		},
+		items: itemList,
+		fecha:{
+			fecha_de_emision: yyyy+"-"+mm+"-"+dd,
+			fecha_de_vencimiento: yyyy+"-"+mm+"-"+DD
+		},
+		total: total,
+		doctype: values.tipo_comprobante,
+		documento:{
+			exportacion: 0,
+			tipo_de_cambio:"",
+			percepcion_tipo:"",
+			percepcion_base_imponible:"",
+			total_percepcion:"",
+			detraccion:"",
+			observaciones:"",
+			codigo_unico:"",
+			medio_de_pago:"",
+			condiciones_de_pago:"",
+			serie_documento: response2.serie,
+			numero_documento: response2.numero,
+			codigo_tipo_operacion: response2.tipo_de_comprobante,
+			qr: response2.cadena_para_codigo_qr,
+			filename: response2.enlace,
+			hash: response2.codigo_hash,
+			number_to_letter: "",
+			external_id: response2.key,
+			xml: response2.enlace_del_xml,
+			pdf: response2.enlace_del_pdf,
+			cdr: response2.enlace_del_cdr
+		},
+		guia:{
+			placa_vehiculo:""
+		},
+	}
+	frappe.call({
+		method:"restaurante.comprobante.set",
+		async:false,
+		args:{form:form_doc},
+		callback:function(r){
+			limpiar();		
+		}
+	});
+	
+	
+}
