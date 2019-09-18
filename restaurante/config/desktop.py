@@ -6,9 +6,17 @@ def get_data():
 	return [
 		{
 			"module_name": "Caja Y Mozo",
-			"color": "grey",
-			"icon": "octicon octicon-file-directory",
+			"color": "#388e3c",
+			"icon": "🍔",
 			"type": "module",
 			"label": _("Caja y Mozo")
+		},
+		{
+			"module_name": "caja-del-restaurante",
+			"color": "#388e3c",
+			"icon": "🍔",
+			"type": "page",
+			"link": "caja-del-restaurante",
+			"label": _("Nueva venta")
 		}
 	]

@@ -6,10 +6,10 @@ app_name = "restaurante"
 app_title = "Restaurante"
 app_publisher = "frappe"
 app_description = "restaurant"
-app_icon = "octicon octicon-file-directory"
-app_color = "grey"
+app_icon = "🍔"
+app_color = "#388e3c"
 app_email = "admin@frappe.cf"
-app_license = "MIT"
+app_license = "OLP"
 
 # Includes in <head>
 # ------------------
