@@ -97,7 +97,7 @@
 									{% for ( var i in restaurantMenu ){ %}
 										
 									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}}"
-									onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }} )" >
+									onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }}, \'{{ window.btoa(restaurantMenu[i].item.item_group) }}\' )" >
 										
 											<span style="
 											min-height: 60px;

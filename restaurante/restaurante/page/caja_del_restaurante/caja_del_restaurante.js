@@ -188,8 +188,9 @@ function change_mesa(mesa=""){
 		}
 	});
 }
-function sendItem (name, rate){
+function sendItem (name, rate,item_group){
 	name = window.atob(name)
+	item_group = window.atob(item_group)
 	let topp=null
 	let complementos=[];
 	complementos.push({
@@ -199,27 +200,41 @@ function sendItem (name, rate){
 		default: 1
 	});
 	extras={};
-	
+	var afectados=0;
 	for (let i in toppings.complemento ){
-		topp = {
-			label: toppings.complemento[i].nombre,
-			filters : {
-				"item_group":toppings.complemento[i].item
-			},
-			fieldname: "item"+i,
-			fieldtype: 'Link',
-			options: "Item" ,
-			
-			default:toppings.complemento[i].default
-			
-		};
-		complementos.push(topp);
-		extras["item"+i] = {
-			fieldname: "item"+i,
-			fieldtype: 'Link',
-			options: "Item" ,
-			default:toppings.complemento[i].default
-		};
+		if(toppings.complemento[i].refer == item_group)
+		{
+			topp = {
+				label: toppings.complemento[i].nombre,
+				filters : {
+					"item_group":toppings.complemento[i].item
+				},
+				fieldname: "item"+i,
+				fieldtype: 'Link',
+				options: "Item" ,
+				
+				default:toppings.complemento[i].default
+				
+			};
+			complementos.push(topp);
+			extras["item"+i] = {
+				fieldname: "item"+i,
+				fieldtype: 'Link',
+				options: "Item" ,
+				default:toppings.complemento[i].default
+			};
+			afectados++;
+		}
+	}
+	if(afectados == 0){
+		complementos.push(
+				label: "Complemento",
+				fieldname: "item0",
+				fieldtype: 'Data',
+				options: "Item" ,
+				default:"No tiene Complementos",
+				hidden:1
+		});
 	}
 	complementos.push({
 		label:"Nombre del producto",
