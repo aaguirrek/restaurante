@@ -11,7 +11,15 @@
                 <a onclick="plato_plus( \'{{values.itemname}}\' , this )" id="{{values.id}}_plus" ><i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a>
             </div>
             <div class="title col-md-1">
-                <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" ><i class="octicon octicon-bell" style="color:#98d85b"></i></a>
+                {%  if( "servido" in values   ){   %}
+                    {%  if( values.servido == 1   ){   %}
+                        <a id="{{values.id}}_href" ><i class="octicon octicon-bell" style="color:#dcdcdc"></i></a>
+                {% }else{ %}
+                        <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" ><i class="octicon octicon-bell" style="color:#98d85b"></i></a>
+                {% } %}
+                {% }else{ %}
+                    <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" ><i class="octicon octicon-bell" style="color:#98d85b"></i></a>
+                {% } %}
             </div>
             <div class="title col-md-1">{{values.rate}}</div>
             <div class="title col-md-2" id="{{values.id}}_rate" data-tipo="rate">{{ parseFloat(values.rate) * parseFloat(values.qty) }}</div>

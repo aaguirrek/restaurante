@@ -55,7 +55,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		}
 	})
 	var restaurantMenu = null;
-	frappe.call({async:false,method:"restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.get_menu", args:{restaurante:"greena" }, callback:function(res){ restaurantMenu =res.message }});
+	frappe.call({async:false,method:"restaurante.caja_y_mozo.page.caja_del_restaurante.caja_del_restaurante.get_menu", args:{restaurante:"greena" }, callback:function(res){ restaurantMenu =res.message }});
 	frappe.db.get_doc("Complementos del Plato").then(doc => {
 		toppings = doc
 	})
@@ -165,6 +165,7 @@ function change_mesa(mesa=""){
 							item_values.comentario = ld.extra.comentario;
 							item_values.qty = ld.qty;
 							item_values.rate = ld.rate;
+							item_values.servido = ld.servido;
 							let q=0;
 							while(ld.extra["item"+q] !== undefined){
 								if(extras=== undefined)
@@ -227,7 +228,7 @@ function sendItem (name, rate,item_group){
 		}
 	}
 	if(afectados == 0){
-		complementos.push(
+		complementos.push({
 				label: "Complemento",
 				fieldname: "item0",
 				fieldtype: 'Data',
@@ -274,6 +275,7 @@ function sendItem (name, rate,item_group){
 	d.show();
 }
 function add_item(values){
+	console.log(values)
 	let i = 0
 	values.elements=[]
 	let idstring = ""
@@ -289,6 +291,13 @@ function add_item(values){
 		extras.comentario = "";
 	}
 	idstring += values.comentario;
+	let isservido=0;
+	if("servido" in values){
+		if(values.servido == 1){
+			idstring +="|newunique: "+ new Date().getTime();
+			isservido=1;
+		}
+	}
 	let id = window.btoa(values.itemname+"|"+idstring);
 	id = id.replace(/=/g, "_");
 	values.id=id;
@@ -343,7 +352,7 @@ function add_item(values){
 	      "qty": platos[o].qty,
 	      "rate": platos[o].rate,
 		  "extras": extra[o],
-		  "servido": 0,
+		  "servido": isservido,
 		  "tipo": "Directo"
       })
 	}
@@ -395,7 +404,7 @@ function plato_preparado(name,el){
 			ingredientes = r.message
 		}
 	})
-	if( ingredientes.auto == 1){
+	if( ingredientes.auto == 0){
 		for ( var i in ingredientes.items ){
 			let item = ingredientes.items[i]
 			complementos.push({
@@ -431,6 +440,7 @@ function plato_preparado(name,el){
 	
 }
 function plato_servido(values, iditem ){
+	
 	cliente = "Anonimo"
 	let data=[]
 	let antid = window.btoa(iditem)
@@ -450,19 +460,54 @@ function plato_servido(values, iditem ){
 		})
 	}
 	
-	//console.log(data)
+	let elementos2 = [];
+	for (var o in platos){
+		if( o == antid ){
+			elementos2.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "rate": platos[o].rate,
+			  "extras": extra[o],
+			  "servido": 1,
+			  "tipo": "Directo"
+      });
+		}else{
+      elementos2.push({
+      	"name": platos[o].itemname,
+	      "qty": platos[o].qty,
+	      "rate": platos[o].rate,
+			  "extras": extra[o],
+			  "servido": 0,
+			  "tipo": "Directo"
+      });
+		}
+	}
+	frappe.call({
+		method: "restaurante.caja.saveTemporal",
+		args: {
+			customer:$('input[data-fieldname="customer"]').val(),
+			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
+			items: elementos2,
+			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
+			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
+		},
+		async: false,
+		callback: function(r) {},
+	});
+	
+	
 	frappe.call({
 		async:false,
-		method:"restaurante.restaurante.page.caja_del_restaurante.caja_del_restaurante.set_plato",
+		method:"restaurante.caja_y_mozo.page.caja_del_restaurante.caja_del_restaurante.set_plato",
 		args:{
 			data:data,
 			customer: cliente
 		},
 		callback:function(r){
 			res =r.message
-			if(res.exc_type == "DoesNotExistError"){
-				frappe.msgprint("Se ha registrado el uso de los ingredientes")
-			}
+			frappe.msgprint("Se ha registrado el uso de los ingredientes")
+			
 			$("#"+antid+"_id").attr("id",newid+"_id")
 			$("#"+antid+"_rate").attr("id",newid+"_rate")
 			$("#"+antid+"_qty").attr("id",newid+"_qty")
@@ -857,7 +902,8 @@ function generar_comprobante(values){
 	if(values.tipo_comprobante == "Factura"){
 		metodo="sunat.sunat.doctype.factura.factura.Nubefact";
 	}
-
+	console.log(values.numero_doc )
+	console.log(values.numero_doc.length )
 	var response = null;
 	let address = "";
 	if( (values.numero_doc).length == 11){
@@ -868,6 +914,7 @@ function generar_comprobante(values){
 			settings.url = "https://lobellum.cf/api/services/dni/"+values.numero_doc
 			response = JSON.parse( $.ajax(settings).responseText );
 		}else{
+			values.numero_doc="OTROS"
 			response = {};
 			response.data = {};
 			response.data.name = "VARIOS";
@@ -915,13 +962,6 @@ function generar_comprobante(values){
 		mm='0'+mm;
 	}
 	
-	if("numero_doc" in values){
-		if(values.numero_doc=""){
-			values.numero_doc = "OTROS";
-		}
-	}else{
-		values.numero_doc = "OTROS";
-	}
 
 	var itemList   = [];
 	var itli	   = {};
@@ -957,7 +997,7 @@ function generar_comprobante(values){
 			"total": unit_total
 		});
 	}
-	let response22 = null;
+	let response2 = null;
 	frappe.call({
 		method:metodo,
 		async:false,
@@ -984,7 +1024,8 @@ function generar_comprobante(values){
 				observaciones:"",
 				codigo_unico:"",
 				medio_de_pago:"",
-				condiciones_de_pago:""
+				condiciones_de_pago:"",
+				name:"UN"+today.getTime()
 			},
 			guia:{
 				placa_vehiculo:""
@@ -1003,7 +1044,7 @@ function generar_comprobante(values){
 		"args": {
 		"doctype":"Setup",
 		"name":"Setup",
-		"fieldname":"numero_boleta",
+		"fieldname":"numero_"+ values.tipo_comprobante.toLowerCase(),
 		"value": response2.numero + 1
 		},
 		async: false
@@ -1054,7 +1095,7 @@ function generar_comprobante(values){
 		async:false,
 		args:{form:form_doc},
 		callback:function(r){
-			frappe. msgprint({message: values.tipo_comprobante+' ha sido emitida con éxito <br/><br/> <a href="'+response2.enlace_del_pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a>',title: values.tipo_comprobante+' emitida', indicator:'green'});
+			frappe. msgprint({message: values.tipo_comprobante+' ha sido emitida con éxito <br/><br/> <a target="_blank" href="'+response2.enlace_del_pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a>',title: values.tipo_comprobante+' emitida', indicator:'green'});
 			limpiar();
 		}
 	});
