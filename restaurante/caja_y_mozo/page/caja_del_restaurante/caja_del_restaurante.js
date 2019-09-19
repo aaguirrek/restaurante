@@ -236,6 +236,12 @@ function sendItem (name, rate,item_group){
 				default:"No tiene Complementos",
 				hidden:1
 		});
+		extras["item0"] = {
+			fieldname: "item0",
+			fieldtype: 'Link',
+			options: "Item" ,
+			default:toppings.complemento[i].default
+		};
 	}
 	complementos.push({
 		label:"Nombre del producto",
@@ -274,6 +280,7 @@ function sendItem (name, rate,item_group){
 	
 	d.show();
 }
+
 function add_item(values){
 	console.log(values)
 	let i = 0
@@ -282,7 +289,14 @@ function add_item(values){
 	while(values["item"+i] !== undefined ){
 		values.elements.push(values["item"+i]);
 		idstring += values["item"+i]+"|";
-		extras["item"+i].value = values["item"+i];
+		if(extras["item"+i] === undefined){
+			extras["item"+i] = {};
+		}
+		if(values["item"+i] !== undefined){
+			console.log(extras["item"+i]);
+			console.log(values["item"+i]);
+			extras["item"+i].value = values["item"+i];
+		}
 		i++;
 	}
 	if(values.comentario!== undefined){
@@ -891,6 +905,11 @@ function generar_comprobante(values){
 	}
 	
 	var metodo="";
+	if(values.tipo_comprobante === undefined){
+		frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
+		limpiar();
+		return;
+	}
 	if(values.tipo_comprobante == ""){
 		frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
 		limpiar();
@@ -906,6 +925,12 @@ function generar_comprobante(values){
 	console.log(values.numero_doc.length )
 	var response = null;
 	let address = "";
+	if( values.numero_doc == undefined ){
+		values.numero_doc="OTROS"
+		response = {};
+		response.data = {};
+		response.data.name = "VARIOS";
+	}
 	if( (values.numero_doc).length == 11){
 		settings.url = "https://lobellum.cf/api/services/ruc/"+values.numero_doc;
 		response = JSON.parse( $.ajax(settings).responseText );
@@ -1101,4 +1126,8 @@ function generar_comprobante(values){
 	});
 	
 	
+}
+
+function topping_contable(value){
+
 }

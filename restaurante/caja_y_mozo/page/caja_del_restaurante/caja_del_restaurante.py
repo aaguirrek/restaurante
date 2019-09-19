@@ -38,6 +38,7 @@ def set_plato(data, customer="Anonimo" ):
     itemList = []
     total = 0
     total_qty=0
+
     for el in data:
         item = frappe.get_doc("Item", el["item"] )
         warehouse= item.item_defaults[0].default_warehouse
@@ -61,7 +62,6 @@ def set_plato(data, customer="Anonimo" ):
             })
     now = datetime.datetime.now()
     year =  now.year
-    ant = frappe.get_last_doc("Delivery Note")
     doc= frappe.get_doc({
         "naming_series":"MAT-DN-.YYYY.-",
         "posting_date": frappe.utils.nowdate(),
