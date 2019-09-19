@@ -16,6 +16,7 @@ var ffilter_item = null;
 var fgroup = null;
 var all_tables = {};
 var tablesTotales=[];
+var temptopping={};
 frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	w = wrapper;
 	 page = frappe.ui.make_app_page({
@@ -280,12 +281,12 @@ function sendItem (name, rate,item_group){
 	
 	d.show();
 }
-
 function add_item(values){
 	console.log(values)
-	let i = 0
-	values.elements=[]
-	let idstring = ""
+	let i = 0;
+	values.elements=[];
+	let toppi=[];
+	let idstring = "";
 	while(values["item"+i] !== undefined ){
 		values.elements.push(values["item"+i]);
 		idstring += values["item"+i]+"|";
@@ -391,7 +392,6 @@ function add_item(values){
 		},
 		async: false,
 		callback: function(r) {
-			//console.log(r.message)
 			if(r.message == "no encontrado"){
 				$("#"+values.id+"_href").hide()
 			}
@@ -438,10 +438,7 @@ function plato_preparado(name,el){
 			d.hide();
 		}
 	});
-	
 	d.show();
-	
-	
 	}else{
 		var values = {};
 		for ( var i in ingredientes.items ){
@@ -468,10 +465,14 @@ function plato_servido(values, iditem ){
 	}
 	
 	for( let i in values ){
-		data.push({
-			item:i,
-			qty:values[i]
-		})
+		if(values[i] !== undefined){
+			if(values[i] != 0){
+				data.push({
+					item:i,
+					qty:values[i]
+				})
+			}
+		}
 	}
 	
 	let elementos2 = [];
@@ -1127,7 +1128,6 @@ function generar_comprobante(values){
 	
 	
 }
-
-function topping_contable(value){
-
+function pdf(){
+	
 }
