@@ -533,8 +533,9 @@ function plato_servido(values, iditem ){
 	});
 }
 function pagarTodo(){
-	let complementos = []
-	let modosPagos = null
+	let complementos = [];
+	let modosPagos = null;
+  let cliente = null;
 	frappe.call({
 		method: "frappe.client.get",
 		args: {
@@ -543,6 +544,17 @@ function pagarTodo(){
 		async: false,
 		callback: function(r) {
 			modosPagos = r.message
+		}
+	})
+  frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Customer",
+      name: $('input[data-fieldname="customer"]').val()
+		},
+		async: false,
+		callback: function(r) {
+			cliente = r.message
 		}
 	})
 	for (var i in modosPagos.items ){
@@ -604,7 +616,7 @@ function pagarTodo(){
 		label:"Ruc/Dni",
 		fieldname:"numero_doc",
 		fieldtype:"Data",
-		default:""
+		default: cliente.tax_id
 	})
 	complementos.push({
 		fieldname:"Column Break",
@@ -615,7 +627,7 @@ function pagarTodo(){
 		label:"Correo Electrónico",
 		fieldname:"email",
 		fieldtype:"Data",
-		default:""
+		default: cliente.email_id
 	})
 
 	let d = new frappe.ui.Dialog({
@@ -671,7 +683,7 @@ function generarVenta(values){
 		async: true,
 		callback: function(r) {
 			if(r.exc_type == "DoesNotExistError"){
-				generar_comprobante(values);
+				generar_comprobante(values,r.message.name);
 			}
 		},
 	});
@@ -892,7 +904,10 @@ function plato_delete(item_name,item){
 		callback: function(r) {},
 	});
 }
-function generar_comprobante(values){
+function generar_comprobante(values,nombreComp){
+  var eltipo="V";
+  var elementoUrl="fri";
+  var A4="A4";
 	var settings = {
 		"async": false,
 		"crossDomain": true,
@@ -906,13 +921,50 @@ function generar_comprobante(values){
 	
 	var metodo="";
 	if(values.tipo_comprobante === undefined){
-		frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
-		limpiar();
+		 
+      if(sunat_setup.pdf == "A5"){
+        A4="A4"
+      }
+      if(sunat_setup.pdf == "TICKET"){
+        A4="Ticket"
+      }
+      
+			frappe.msgprint({message: nombreComp+
+      ' ha sido emitida con éxito <br/><br/> <a  \
+      onclick="pdf(\''+nombreComp+'\',\'Venta\')" \
+      class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
+      <div id="el_codigoqr"> </div> \
+      ',
+      title: 'Venta Generada', indicator:'green'});
+       setTimeout(function(e){
+			$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp ); 
+			  cur_dialog.onhide = function(e){ limpiar() }
+      },500)
+		
 		return;
 	}
 	if(values.tipo_comprobante == ""){
-		frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
-		limpiar();
+      
+      if(sunat_setup.pdf == "A5"){
+        A4="A4"
+      }
+      if(sunat_setup.pdf == "TICKET"){
+        A4="Ticket"
+      }
+      
+			frappe.msgprint({message: nombreComp+
+      ' ha sido emitida con éxito <br/><br/> <a  \
+      onclick="pdf(\''+nombreComp+'\',\'Venta\')" \
+      class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
+      <div id="el_codigoqr"> </div> \
+      ',
+      title: 'Venta Generada', indicator:'green'});
+       setTimeout(function(e){
+			$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp ); 
+			  cur_dialog.onhide = function(e){ limpiar() }
+      },500)
+		//frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
+	
 		return;
 	}
 	if(values.tipo_comprobante == "Boleta"){
@@ -1115,13 +1167,75 @@ function generar_comprobante(values){
 		async:false,
 		args:{form:form_doc},
 		callback:function(r){
-			frappe. msgprint({message: values.tipo_comprobante+' ha sido emitida con éxito <br/><br/> <a target="_blank" href="'+response2.enlace_del_pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a>',title: values.tipo_comprobante+' emitida', indicator:'green'});
-			limpiar();
+      if(sunat_setup.pdf == "A5"){
+        A4="A4"
+      }
+      if(sunat_setup.pdf == "TICKET"){
+        A4="Ticket"
+      }
+      if(tipoC == "Boleta"){
+        eltipo="B";
+        elementoUrl="fsi";
+      }
+      if(tipoC == "Factura"){
+        eltipo="F";
+        elementoUrl="fsi";
+      }
+      
+			frappe.msgprint({message: values.tipo_comprobante+
+      ' ha sido emitida con éxito <br/><br/> <a  \
+      onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\')" \
+      class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
+      <div id="el_codigoqr"> </div> \
+      ',title: values.tipo_comprobante+' emitida', indicator:'green'});
+      setTimeout(function(e){
+			  $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+r.message.name ); 
+        cur_dialog.onhide = function(e){ limpiar() }
+      },500)
+      
+      
 		}
 	});
 	
 	
 }
-function pdf(){
-	
+function qr(){
+  var eltipo="V";
+  var elementoUrl="fri";
+  var A4="A4";
+  if(sunat_setup.pdf == "A5"){
+    A4="A4"
+  }
+  if(sunat_setup.pdf == "TICKET"){
+    A4="Ticket"
+  }
+  if(tipoC == "Boleta"){
+    eltipo="B";
+    elementoUrl="fsi";
+  }
+  if(tipoC == "Factura"){
+    eltipo="F";
+    elementoUrl="fsi";
+  }
+}
+function pdf(pdf, tipoC){
+  var eltipo="V";
+  var elementoUrl="fri";
+  var A4="A4";
+  if(sunat_setup.pdf == "A5"){
+    A4="A4"
+  }
+  if(sunat_setup.pdf == "TICKET"){
+    A4="Ticket"
+  }
+  if(tipoC == "Boleta"){
+    eltipo="B";
+    elementoUrl="fsi";
+  }
+  if(tipoC == "Factura"){
+    eltipo="F";
+    elementoUrl="fsi";
+  }
+  window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
+  limpiar();
 }
