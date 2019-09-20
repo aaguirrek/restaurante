@@ -152,7 +152,7 @@ function change_mesa(mesa=""){
 		async: true,
 		callback: function(r) {
 			inicial = r.message;
-			console.log(inicial);
+			//console.log(inicial);
 			$("#Titulo").html("Mesa - "+ inicial.mesa.name);
 			fmesa.set_value(inicial.mesa.name).then(function(e){
 				if(inicial.estado == "sucess"){
@@ -282,7 +282,7 @@ function sendItem (name, rate,item_group){
 	d.show();
 }
 function add_item(values){
-	console.log(values)
+	//console.log(values)
 	let i = 0;
 	values.elements=[];
 	let toppi=[];
@@ -294,8 +294,8 @@ function add_item(values){
 			extras["item"+i] = {};
 		}
 		if(values["item"+i] !== undefined){
-			console.log(extras["item"+i]);
-			console.log(values["item"+i]);
+			//console.log(extras["item"+i]);
+			//console.log(values["item"+i]);
 			extras["item"+i].value = values["item"+i];
 		}
 		i++;
@@ -402,7 +402,7 @@ function plato_preparado(name,el){
 	id = el.id
 	id = id.replace("_href","")
 	let element = id
-	//console.log(id)
+	////console.log(id)
 	id = id.replace(/_/g,"=")
 	id = window.atob( id )
 	let complementos=[];
@@ -893,7 +893,6 @@ function plato_delete(item_name,item){
 	});
 }
 function generar_comprobante(values){
-	console.log("generando");
 	var settings = {
 		"async": false,
 		"crossDomain": true,
@@ -922,8 +921,6 @@ function generar_comprobante(values){
 	if(values.tipo_comprobante == "Factura"){
 		metodo="sunat.sunat.doctype.factura.factura.Nubefact";
 	}
-	console.log(values.numero_doc )
-	console.log(values.numero_doc.length )
 	var response = null;
 	let address = "";
 	if( values.numero_doc == undefined ){
@@ -1002,9 +999,6 @@ function generar_comprobante(values){
 		igv_unit = parseFloat( parseFloat( itli.rate * sunat_setup.igv )/(100 + sunat_setup.igv )).toFixed(2);
 		valor_unit = parseFloat(itli.rate) - parseFloat(igv_unit);
 		valor_tot = parseFloat(itli.qty) * parseFloat(valor_unit);
-		console.log(igv_unit)
-		console.log(valor_unit)
-		console.log(valor_tot)
 		itemList.push({
 			"unidad_de_medida": "Números",
 			"codigo": itli.itemname,
@@ -1063,7 +1057,7 @@ function generar_comprobante(values){
 		}
 	})
 	if("errors" in response2 ){
-		return frappe.throw( response2.errors )
+		return frappe.throw( response2.errors );
 	}
 	frappe.call({
 		"method": "frappe.client.set_value",

@@ -78,7 +78,8 @@ CIENTOS = (
 )
 
 def get_context(context):
-  tipo =  "B"
+  tipo =  "V"
+  url = frappe.local.form_dict["c"]
   globales = frappe.get_doc("Global Defaults")
   company = frappe.get_doc("Company",globales.default_company)
   sunat = frappe.get_doc("Setup")
@@ -88,92 +89,30 @@ def get_context(context):
   cliente_direccion = ""
   logo = "None"
   filename=""
-  tip = "B"
-  sales_invoice = {}
-  url = frappe.local.form_dict["c"]
+  sales_invoice = frappe.get_doc("Sales Invoice", frappe.local.form_dict["c"])
 
+  if sales_invoice is None:
+      frappe.throw(_('Not Found'), frappe.NotFound)
+      
   if company.company_logo is not None :
     logo = company.company_logo
 
+  if url.startswith('Res') :
+    cliente = sales_invoice.customer
+    name = sales_invoice.name
+    total = sales_invoice.grand_total
+    igv = round(  (float(sales_invoice.grand_total) * float(sunat.igv) ) / (100 + float(sunat.igv)) , 2 )
+    subtotal = total - igv
+    tipo = "Recibo Electrónica"
+    qr=""
+  else:
+    frappe.throw(_('Not Found'), frappe.NotFound)
 
-  if url.startswith("BOLETA") :
-    tip = "B"
-    tipo =  "B"
-    comprobante = frappe.get_doc("Boleta", url )
-    if comprobante is None:
-      frappe.throw(_('Not Found'), frappe.NotFound)
-    name = comprobante.serie_documento + "-"+ comprobante.numero_documento
-    cliente = comprobante.cliente_denominacion
-    total = comprobante.total
-    igv = comprobante.total_igv
-    subtotal = comprobante.total_gravada
-    tipo = "Boleta Electrónica"
-    qr = comprobante.qr
-    hashe = ""
-    
 
-    cliente_ruc = comprobante.cliente_numero_de_documento
-    if comprobante.address is not None:
-        cliente_direccion = comprobante.address
-    if comprobante.filename is not None:
-        filename = comprobante.filename
-        hashe = comprobante.hash
-    
-    for item in comprobante.items:
-        itemsa.append({
-            "idx":item.idx,
-            "item_code": item.codigo_interno,
-            "item_name": item.codigo_interno,
-            "qty":item.cantidad,
-            "rate":item.precio_unitario,
-            "amount":item.total
-        })
-  else :
-    if url.startswith('FACTURA') :
-        tipo =  "F"
-        tip = "F"
-        comprobante = frappe.get_doc("Factura", url )
-        if comprobante is None:
-            frappe.throw(_('Not Found'), frappe.NotFound)
-        name = comprobante.serie_documento + "-"+ comprobante.numero_documento
-        cliente = comprobante.cliente_denominacion
-        total = comprobante.total
-        igv = comprobante.total_igv
-        subtotal = comprobante.total_gravada
-        tipo = "Factura de Venta"
-        qr = comprobante.qr
-        cliente_ruc = comprobante.cliente_numero_de_documento
-        if comprobante.address is not None:
-            cliente_direccion = comprobante.address
-        if comprobante.filename is not None:
-            filename = comprobante.filename
-            hashe = comprobante.hash
-        
-        for item in comprobante.items:
-            itemsa.append({
-                "idx":item.idx,
-                "item_code": item.codigo_interno,
-                "item_name": item.codigo_interno,
-                "qty":item.cantidad,
-                "rate":item.precio_unitario,
-                "amount":item.total
-            })
-        else:
-            frappe.throw(_('Not Found'), frappe.NotFound)
 
-  if comprobante is None:
-      frappe.throw(_('Not Found'), frappe.NotFound)
-  domain = frappe.request.url
-  domain = domain.split("//")[-1].split("/")[0]
-  context.domain = domain
-  context.tip = tip
-  context.compro = comprobante.name
   context.cliente_ruc = cliente_ruc
   context.cliente_direccion = cliente_direccion
   context.logo = logo
-  context.qr = qr
-  context.filename = filename
-  context.hashe = hashe
   context.company = company
   context.company_name = sunat.razon_social
   context.no_cache = 1
@@ -183,6 +122,7 @@ def get_context(context):
   context.direccion = sunat.direccion
   context.cliente = cliente
   context.items = itemsa
+  context.sales_invoice = sales_invoice
   context.porcentaje_igv = sunat.igv
   context.igv = igv
   context.subtotal = subtotal

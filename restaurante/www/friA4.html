@@ -96,7 +96,7 @@
                                                             <th>Total</th>
                                                         </tr></thead>
                                                         <tbody>
-                                                            {% for item in items: %}
+                                                            {% for item in sales_invoice.items: %}
                                                             <tr>
                                                                 <td>{{ item.idx }}</td>
                                                                 <td>{{ item.item_code }}</td>
@@ -117,16 +117,6 @@
                                             <hr>
                                             <div class="col-md-12">
                                                 
-                                                <div class="pull-left m-t-30" style="font-size: 9pt">
-                                                    <p>Representación impresa de la {{tipo}}</p>
-                                                    <p>https://{{domain}}/cpe?t={{tip}}&c={{compro}}</p>
-                                                    <p>Autorizado mediante Resolución de Intendencia No.034-005-0005315</p>
-                                                    <p>Resumen:</p>
-                                                    <p>{{hashe}}</p>
-                                                    <div id="sunatqr">
-                                                        {{qr}}
-                                                    </div>
-                                                </div>
                                                 <div class="pull-right m-t-30">
                                                     <p class="text-right"><b>Subtotal: </b> S/. {{subtotal}}</p>
                                                     <p class="text-right"><b>IGV {{ porcentaje_igv }}%: </b>S/. {{igv}}</p>
