@@ -316,6 +316,7 @@ function add_item(values){
 	let id = window.btoa(values.itemname+"|"+idstring);
 	id = id.replace(/=/g, "_");
 	values.id=id;
+	let unitqty = parseInt( values.qty  );
 	if( $("#"+id+"_id" ).length ){
 		let qty = (parseInt( $("#"+id+"_qty").text() ) + parseInt( values.qty ) );
 		$("#"+id+"_qty").text( qty );
@@ -327,7 +328,7 @@ function add_item(values){
 	}
 	let itotal=parseFloat( $("#total_total").text().replace("S/.", "") );
 	let iitem = parseFloat(values.rate);
-	let iqty = parseInt(values.qty);
+	let iqty = unitqty;
 	itotal = itotal +  (iitem * iqty );
 	let iigv = parseFloat( sunat_setup.igv );
 	let itotaligv = parseFloat( parseFloat( (itotal * iigv) / (100 + iigv) ).toFixed(2) );
