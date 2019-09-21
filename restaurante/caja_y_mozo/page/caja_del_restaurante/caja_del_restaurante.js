@@ -952,15 +952,15 @@ function generar_comprobante(values,nombreComp){
         A4="Ticket"
       }
       
+	  // onclick="pdf(\''+nombreComp+'\',\'Venta\')"
 			frappe.msgprint({message: nombreComp+
       ' ha sido emitida con éxito <br/><br/> <a  \
-      onclick="pdf(\''+nombreComp+'\',\'Venta\')" \
-      class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
+	   href="'+values.pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
       <div id="el_codigoqr"> </div> \
       ',
       title: 'Venta Generada', indicator:'green'});
        setTimeout(function(e){
-			$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp ); 
+			$('#el_codigoqr').qrcode( values.pdf ); 
 			  cur_dialog.onhide = function(e){ limpiar() }
       },500)
 		//frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
@@ -1173,11 +1173,11 @@ function generar_comprobante(values,nombreComp){
       if(sunat_setup.pdf == "TICKET"){
         A4="Ticket"
       }
-      if(tipoC == "Boleta"){
+      if(values.tipo_comprobante == "Boleta"){
         eltipo="B";
         elementoUrl="fsi";
       }
-      if(tipoC == "Factura"){
+      if(values.tipo_comprobante == "Factura"){
         eltipo="F";
         elementoUrl="fsi";
       }
