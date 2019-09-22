@@ -241,7 +241,8 @@ function sendItem (name, rate,item_group){
 			fieldname: "item0",
 			fieldtype: 'Link',
 			options: "Item" ,
-			default:toppings.complemento[i].default
+			default:0,
+			hidden:1
 		};
 	}
 	complementos.push({

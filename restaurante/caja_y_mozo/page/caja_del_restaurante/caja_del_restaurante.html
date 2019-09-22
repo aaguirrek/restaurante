@@ -17,7 +17,10 @@
     </div>
 </div>
 <style>
-
+body{
+	max-height: 100vh;
+    overflow: hidden;
+}
 .flex-container {
   display: flex;
   flex-wrap: wrap;
@@ -53,10 +56,10 @@
 					<div class="col-md-6"  style="padding-top: 15px;">
 						<div class="control-input-wrapper filtrar"></div>
 					</div>
-					<div class="col-md-3"  style="padding-top: 15px;" style="display:none">
+					<div class="col-md-3"  style="padding-top: 15px; display:none">
 						<div class="control-input-wrapper filter"></div>
 					</div>
-					<div class="col-md-3"  style="padding-top: 15px;" style="display:none">
+					<div class="col-md-3"  style="padding-top: 15px; display:none">
 						<div class="control-input-wrapper group">	</div>
 					</div>
 				</div>
@@ -91,7 +94,7 @@
 								    </div>
 								</div>
 							</div>
-							<div class="col-md-8" style="padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:500px">
+							<div class="col-md-8" style="max-height: calc( 100vh - 250px );overflow-y: auto; padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:500px">
 								
 								<div class="col-md-12 flex-container all_items">
 									{% for ( var i in restaurantMenu ){ %}
