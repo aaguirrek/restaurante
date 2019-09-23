@@ -404,11 +404,17 @@ function plato_preparado(name,el){
 	id = el.id
 	id = id.replace("_href","")
 	let element = id
-	////console.log(id)
 	id = id.replace(/_/g,"=")
 	id = window.atob( id )
 	let complementos=[];
 	let ingredientes=null
+	console.log(id)
+	//Coco Bowl Fresa|Topping Granola Clásica|Topping Arándanos|Topping Chía|
+	var str1 = id
+	str1 = str1.split("|");
+	str.pop();
+	str.shift();
+
 	frappe.call({
 		method: "frappe.client.get",
 		args: {
@@ -422,13 +428,35 @@ function plato_preparado(name,el){
 	})
 	if( ingredientes.auto == 0){
 		for ( var i in ingredientes.items ){
+			//Coco Bowl Fresa|Topping Granola Clásica|Topping Arándanos|Topping Chía|
 			let item = ingredientes.items[i]
-			complementos.push({
-				label: item.item_name+" en "+item.uom,
-				fieldname: item.item,
-				fieldtype:"Float",
-				default: item.qty
-			})
+			if (item.topping != undefined){
+				for ( var i in str1 ){
+					if ( item.topping == str1[i]){
+						complementos.push({
+							label: item.item_name+" en "+item.uom,
+							fieldname: item.item,
+							fieldtype:"Float",
+							default: item.qty,
+							hidden:1
+						})
+					}else{
+						complementos.push({
+							label: item.item_name+" en "+item.uom,
+							fieldname: item.item,
+							fieldtype:"Float",
+							default: 1
+						})
+					}
+				}
+			}else{
+				complementos.push({
+					label: item.item_name+" en "+item.uom,
+					fieldname: item.item,
+					fieldtype:"Float",
+					default: item.qty
+				})
+			}
 		}
 		
 		let d = new frappe.ui.Dialog({
