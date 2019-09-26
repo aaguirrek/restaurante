@@ -17,7 +17,7 @@
     </div>
 </div>
 <style>
-body{
+body[data-route="caja-del-restaurante"]{
 	max-height: 100vh;
     overflow: hidden;
 }
@@ -27,16 +27,14 @@ body{
 }
 
 .flex-container > div.item {
-    width: 150px;
-    min-width: 150px;
     margin: 10px;
     text-align: center;
-    min-height: 100px;
+    min-height: 150px;
     padding-top: 10px;
-    max-height: 100px;
-    max-width: 150px;
+    max-height: 150px;
 	border-radius:5px;
 	border: 1px solid #cccccc;
+	width: 22%;
 }
 
 </style>
@@ -99,7 +97,7 @@ body{
 								<div class="col-md-12 flex-container all_items">
 									{% for ( var i in restaurantMenu ){ %}
 										
-									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}}"
+									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-3"
 									onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }}, \'{{ window.btoa(restaurantMenu[i].item.item_group) }}\' )" >
 										
 											<span style="
@@ -111,8 +109,6 @@ body{
 											padding-right: 5px;
 										">{{ restaurantMenu[i].item.item_name }}</span>
 											<div class="rate" style="
-														bottom: 10px;
-														width: 150px;
 														max-height: 30px;
 														min-height: 30px;
 														text-align: center;
@@ -120,6 +116,10 @@ body{
 														padding-bottom: 5px;
 														padding-top: 5px;
 														font-weight:bold;
+												    position: absolute;
+												    bottom: 0;
+												    left: 0;
+												    width: 100%;
 												">
 
 												S/. {{ restaurantMenu[i].menu.rate }}

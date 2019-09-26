@@ -17,13 +17,41 @@ var fgroup = null;
 var all_tables = {};
 var tablesTotales=[];
 var temptopping={};
+
+var normalize = (function() {
+  var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
+      to   = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
+      mapping = {};
+ 
+  for(var i = 0, j = from.length; i < j; i++ )
+      mapping[ from.charAt( i ) ] = to.charAt( i );
+ 
+  return function( str ) {
+      var ret = [];
+      for( var i = 0, j = str.length; i < j; i++ ) {
+          var c = str.charAt( i );
+          if( mapping.hasOwnProperty( str.charAt( i ) ) )
+              ret.push( mapping[ c ] );
+          else
+              ret.push( c );
+      }      
+      return ret.join( '' );
+  }
+ 
+})();
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return normalize($(elem).text()).toUpperCase().indexOf(normalize(arg.toUpperCase())) >= 0;
+    };
+});
+
 frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	w = wrapper;
 	 page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: 'Caja del Restaurante',
 		single_column: false
-	})
+	});
 	frappe.call({
 		method: "frappe.client.get",
 		args: {
@@ -33,14 +61,13 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		callback: function(r) {
 			sunat_setup = r.message;
 		}
-	})
-	
+	});
 	frappe.call({
 		method:"frappe.client.get_list",
 		args:{"doctype": "Restaurant Table","order_by":"name asc"},
 		async: false,
 		callback: function(r) {	all_tables = r.message }
-	})
+	});
 	tablesTotales=[];
 	for(var k in all_tables ){
 		tablesTotales.push(all_tables[k].name);
@@ -54,13 +81,13 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		callback: function(r) {
 			sunat_setup = r.message;
 		}
-	})
+	});
 	var restaurantMenu = null;
 	frappe.call({async:false,method:"restaurante.caja_y_mozo.page.caja_del_restaurante.caja_del_restaurante.get_menu", args:{restaurante:"greena" }, callback:function(res){ restaurantMenu =res.message }});
 	frappe.db.get_doc("Complementos del Plato").then(doc => {
 		toppings = doc
-	})
-	page.wrapperTemplate = page.wrapper.html(frappe.render_template("caja_del_restaurante", { restaurantMenu:restaurantMenu } ) )
+	});
+	page.wrapperTemplate = page.wrapper.html(frappe.render_template("caja_del_restaurante", { restaurantMenu:restaurantMenu } ) );
 	fmesa = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".mesa"),
 		df: {
@@ -136,7 +163,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 
 }
 function change_mesa(mesa=""){
-	
+	console.clear();
 	$("#total_total").text("S/.0.00");
 	$("#total_igv").text("S/.0.00");
 	$("#total_subtotal").text("S/.0.00");
@@ -157,11 +184,11 @@ function change_mesa(mesa=""){
 			fmesa.set_value(inicial.mesa.name).then(function(e){
 				if(inicial.estado == "sucess"){
 					fg.set_value( inicial.data.customer ).then(function(e){
-						let item_values = {}
+						let item_values = {};
 						for(var w in inicial.data.items){
 							item_values = {};
 							var ld= inicial.data.items[w];
-							ld.extra = JSON.parse(ld.extra)
+							ld.extra = JSON.parse(ld.extra);
 							item_values.itemname = ld.item;
 							item_values.comentario = ld.extra.comentario;
 							item_values.qty = ld.qty;
@@ -191,9 +218,9 @@ function change_mesa(mesa=""){
 	});
 }
 function sendItem (name, rate,item_group){
-	name = window.atob(name)
-	item_group = window.atob(item_group)
-	let topp=null
+	name = window.atob(name);
+	item_group = window.atob(item_group);
+	let topp = null ;
 	let complementos=[];
 	complementos.push({
 		label:"Cantidad",
@@ -412,8 +439,8 @@ function plato_preparado(name,el){
 	//Coco Bowl Fresa|Topping Granola Clásica|Topping Arándanos|Topping Chía|
 	var str1 = id
 	str1 = str1.split("|");
-	str.pop();
-	str.shift();
+	str1.pop();
+	str1.shift();
 
 	frappe.call({
 		method: "frappe.client.get",
@@ -426,9 +453,11 @@ function plato_preparado(name,el){
 			ingredientes = r.message
 		}
 	})
+
 	if( ingredientes.auto == 0){
+		
+		
 		for ( var i in ingredientes.items ){
-			//Coco Bowl Fresa|Topping Granola Clásica|Topping Arándanos|Topping Chía|
 			let item = ingredientes.items[i]
 			if (item.topping != undefined){
 				for ( var i in str1 ){
@@ -437,15 +466,15 @@ function plato_preparado(name,el){
 							label: item.item_name+" en "+item.uom,
 							fieldname: item.item,
 							fieldtype:"Float",
-							default: item.qty,
-							hidden:1
+							default: 1
 						})
 					}else{
 						complementos.push({
 							label: item.item_name+" en "+item.uom,
 							fieldname: item.item,
 							fieldtype:"Float",
-							default: 1
+							default: 0,
+							hidden:1
 						})
 					}
 				}
@@ -458,7 +487,9 @@ function plato_preparado(name,el){
 				})
 			}
 		}
+
 		
+
 		let d = new frappe.ui.Dialog({
 		title: name,
 		fields: complementos,
@@ -563,9 +594,26 @@ function plato_servido(values, iditem ){
 	});
 }
 function pagarTodo(){
+	var iii=0;
+	if ($(".octicon-bell").length > 0){
+		$('.octicon-bell').each(function() {
+			console.log(this)
+			
+			if( $(this).css("display") != "none"  &&  $(this).parent().css("display") != "none" ){
+				if( $(this).css("color") == "#98d85b" || $(this).css("color") == "rgb(152, 216, 91)" ){
+					iii++;
+					console.log("suma")
+				}else{}
+			}
+		});
+	};
+	if(iii > 0){
+		return frappe.throw("Debes estar todos los platos servidos antes de entregar la cuenta.");
+	}
+
 	let complementos = [];
 	let modosPagos = null;
-  let cliente = null;
+  	let cliente = null;
 	frappe.call({
 		method: "frappe.client.get",
 		args: {
@@ -1269,3 +1317,4 @@ function pdf(pdf, tipoC){
   window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
   limpiar();
 }
+
