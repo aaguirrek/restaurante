@@ -23,7 +23,12 @@ app_license = "OLP"
 # web_include_js = "/assets/restaurante/js/restaurante.js"
 
 # include js in page
-# page_js = {"modules" : "/assets/restaurante/js/restaurante.js"}
+page_js = {
+    "caja-del-restaurante" : [
+        "/assets/restaurante/js/caja/temporal.js",
+        "/assets/restaurante/js/caja/items.js"
+    ]
+}
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}

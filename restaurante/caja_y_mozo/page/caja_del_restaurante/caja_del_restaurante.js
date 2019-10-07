@@ -160,7 +160,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	fgroup.make();
 	
 	change_mesa();
-
 }
 function change_mesa(mesa=""){
 	console.clear();
@@ -216,6 +215,7 @@ function change_mesa(mesa=""){
 			
 		}
 	});
+	//alerta();
 }
 function sendItem (name, rate,item_group){
 	name = window.atob(name);
