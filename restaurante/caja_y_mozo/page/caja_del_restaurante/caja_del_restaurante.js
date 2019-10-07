@@ -144,7 +144,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			});
 		},
 		render_input: true
-	});
+	});//K8LS7fToSmk2
 	ffilter_item.make();
 	fgroup = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".group"),
@@ -230,6 +230,7 @@ function sendItem (name, rate,item_group){
 	});
 	extras={};
 	var afectados=0;
+	var item_id=0;
 	for (let i in toppings.complemento ){
 		if(toppings.complemento[i].refer == item_group)
 		{
@@ -238,7 +239,7 @@ function sendItem (name, rate,item_group){
 				filters : {
 					"item_group":toppings.complemento[i].item
 				},
-				fieldname: "item"+i,
+				fieldname: "item"+item_id,
 				fieldtype: 'Link',
 				options: "Item" ,
 				
@@ -246,13 +247,14 @@ function sendItem (name, rate,item_group){
 				
 			};
 			complementos.push(topp);
-			extras["item"+i] = {
-				fieldname: "item"+i,
+			extras["item"+item_id] = {
+				fieldname: "item"+item_id,
 				fieldtype: 'Link',
 				options: "Item" ,
 				default:toppings.complemento[i].default
 			};
 			afectados++;
+			item_id++;
 		}
 	}
 	if(afectados == 0){
@@ -1317,4 +1319,6 @@ function pdf(pdf, tipoC){
   window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
   limpiar();
 }
-
+function print(){
+	
+}
