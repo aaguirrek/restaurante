@@ -1,4 +1,12 @@
-<div class="col-md-12 layout" id="{{values.id}}_id" style="padding-top: 15px;">
+{% if( "imprimido" in values ){ %} 
+    {% if( values.imprimido == 1 ){ %} 
+        <div class="col-md-12 layout" id="{{values.id}}_id" style="padding-top: 15px;">
+    {% }else{ %}
+        <div class="col-md-12 layout printable" id="{{values.id}}_id" style="padding-top: 15px;">
+    {% } %}
+{% }else{ %}
+    <div class="col-md-12 layout printable" id="{{values.id}}_id" style="padding-top: 15px;">
+{% } %}
     <div class="row" style="border-bottom: 1px solid #ddd; padding-bottom:7px">
         <div class="row">
             <div class="title col-md-1">
