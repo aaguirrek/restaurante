@@ -18,5 +18,13 @@ def get_data():
 			"type": "page",
 			"link": "caja-del-restaurante",
 			"label": _("Nueva venta")
+		},
+		{
+			"module_name": "cocina",
+			"color": "#388e3c",
+			"icon": "🍔",
+			"type": "page",
+			"link": "cocina",
+			"label": _("Cocina")
 		}
 	]

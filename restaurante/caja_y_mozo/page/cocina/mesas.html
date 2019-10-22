@@ -1,0 +1,13 @@
+
+<div id="{{id}}" class="col-md-3 mesa">
+	<div class="header">
+		Mesa Nº {{numero_mesa}}
+	</div>
+	<div class="row contenido">
+		{% for( i in items ){ %}
+		<div class="col-md-12 item">
+			<strong>{{ items[i].qty }}</strong> - {{ items[i].item }} <br/> <span style="color:#00897b">{{ items[i].extraStr }}</span>
+		</div>
+		{% } %}
+	</div>
+</div>

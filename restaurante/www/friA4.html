@@ -153,9 +153,9 @@
             function pdf(){ 
                 $(".hidden-print").hide();
                 kendo.drawing.drawDOM("#pdf1",{ 
-                    paperSize: "A4",
-                    margin: { top: "1cm", bottom: "1cm" },
-                    scale: 0.7,
+          paperSize: "A4",
+          margin: { top: "1cm", bottom: "1cm" },
+                    scale: 1,
                     height: 500
                 })
                .then(function(group){

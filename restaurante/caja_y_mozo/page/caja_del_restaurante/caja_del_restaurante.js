@@ -2,6 +2,8 @@ frappe.provide('frappe.form_dict');
 frappe.provide('frappe.pages');
 frappe.provide('frappe.views');
 frappe.provide('sample_register');
+
+
 var toppings=null;
 var page=null;
 var sunat_setup=null;
@@ -17,6 +19,7 @@ var fgroup = null;
 var all_tables = {};
 var tablesTotales=[];
 var temptopping={};
+
 
 var normalize = (function() {
   var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
@@ -44,7 +47,6 @@ $.expr[":"].contains = $.expr.createPseudo(function(arg) {
         return normalize($(elem).text()).toUpperCase().indexOf(normalize(arg.toUpperCase())) >= 0;
     };
 });
-
 frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	w = wrapper;
 	 page = frappe.ui.make_app_page({
@@ -161,6 +163,8 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	
 	change_mesa();
 }
+
+
 function change_mesa(mesa=""){
 	console.clear();
 	$("#total_total").text("S/.0.00");
@@ -178,7 +182,6 @@ function change_mesa(mesa=""){
 		async: true,
 		callback: function(r) {
 			inicial = r.message;
-			//console.log(inicial);
 			$("#Titulo").html("Mesa - "+ inicial.mesa.name);
 			fmesa.set_value(inicial.mesa.name).then(function(e){
 				if(inicial.estado == "sucess"){
@@ -193,6 +196,7 @@ function change_mesa(mesa=""){
 							item_values.qty = ld.qty;
 							item_values.rate = ld.rate;
 							item_values.servido = ld.servido;
+							item_values.imprimido = ld.imprimido;
 							let q=0;
 							while(ld.extra["item"+q] !== undefined){
 								if(extras=== undefined)
@@ -215,7 +219,6 @@ function change_mesa(mesa=""){
 			
 		}
 	});
-	//alerta();
 }
 function sendItem (name, rate,item_group){
 	name = window.atob(name);
@@ -335,6 +338,9 @@ function add_item(values){
 	}else{
 		extras.comentario = "";
 	}
+	if(values.imprimido === undefined){
+		values.imprimido = 0;
+	}
 	idstring += values.comentario;
 	let isservido=0;
 	if("servido" in values){
@@ -368,53 +374,10 @@ function add_item(values){
 	values.qty = iqty;
 	platos[values.id] = values;
 	extra[values.id] = extras;
-	var elementos=[];
-	for (var o in platos){
-      elementos.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "uom": "Números",
-	      "rate": platos[o].rate
-      });
-	}
-	frappe.call({
-		method: "restaurante.caja.sync",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			items:elementos
-		},
-		async: true,
-		callback: function(r) {
-			if(r.message == "no encontrado"){
-				$("#"+values.id+"_href").hide()
-			}
-		},
-	});
-	let elementos2 = [];
-	for (var o in platos){
-      elementos2.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "rate": platos[o].rate,
-		  "extras": extra[o],
-		  "servido": isservido,
-		  "tipo": "Directo"
-      })
-	}
-	frappe.call({
-		method: "restaurante.caja.saveTemporal",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
-			items: elementos2,
-			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
-		},
-		async: false,
-		callback: function(r) {},
-	});
+	
+	cur_doc.sync();
+	doc_temporal.save();
+	
 	let tipo = "";
 	frappe.call({
 		method: "restaurante.caja.ckeck_ingredientes_item",
@@ -425,6 +388,7 @@ function add_item(values){
 		callback: function(r) {
 			if(r.message == "no encontrado"){
 				$("#"+values.id+"_href").hide()
+				$("#"+values.id+"_href").css("color","#cdcdcd")
 			}
 		},
 	});
@@ -538,43 +502,7 @@ function plato_servido(values, iditem ){
 		}
 	}
 	
-	let elementos2 = [];
-	for (var o in platos){
-		if( o == antid ){
-			elementos2.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "rate": platos[o].rate,
-			  "extras": extra[o],
-			  "servido": 1,
-			  "tipo": "Directo"
-      });
-		}else{
-      elementos2.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "rate": platos[o].rate,
-			  "extras": extra[o],
-			  "servido": 0,
-			  "tipo": "Directo"
-      });
-		}
-	}
-	frappe.call({
-		method: "restaurante.caja.saveTemporal",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
-			items: elementos2,
-			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
-		},
-		async: false,
-		callback: function(r) {},
-	});
-	
-	
+	doc_temporal.save(antid)
 	frappe.call({
 		async:false,
 		method:"restaurante.caja_y_mozo.page.caja_del_restaurante.caja_del_restaurante.set_plato",
@@ -829,9 +757,11 @@ function plato_minus(item_name,item){
 		callback: function(r) {
 			if(r.message == "no encontrado"){
 				$("#"+values.id+"_href").hide()
+				
+				$("#"+values.id+"_href").css("color","#cdcdcd")
 			}
 		},
-	});
+	});/*
 	let elementos2 = [];
 	for (var o in platos){
       elementos2.push({
@@ -855,7 +785,8 @@ function plato_minus(item_name,item){
 		},
 		async: false,
 		callback: function(r) {},
-	});
+	});*/
+	doc_temporal.save();
 }
 function plato_plus(item_name,item){
 	elid = item.id
@@ -891,10 +822,11 @@ function plato_plus(item_name,item){
 		async: true,
 		callback: function(r) {
 			if(r.message == "no encontrado"){
-				$("#"+values.id+"_href").hide()
+			$("#"+values.id+"_href").hide(); $("#"+values.id+"_href").css("color","#cdcdcd");
 			}
 		},
 	});
+	/*
 	let elementos2 = [];
 	for (var o in platos){
       elementos2.push({
@@ -918,7 +850,8 @@ function plato_plus(item_name,item){
 		},
 		async: false,
 		callback: function(r) {},
-	});
+	});*/
+	doc_temporal.save();
 }
 function plato_delete(item_name,item){
 	elid = item.id;
@@ -955,7 +888,7 @@ function plato_delete(item_name,item){
 		async: true,
 		callback: function(r) {
 			if(r.message == "no encontrado"){
-				$("#"+values.id+"_href").hide()
+				$("#"+values.id+"_href").hide(); $("#"+values.id+"_href").css("color","#cdcdcd");
 			}
 		},
 	});
@@ -1031,7 +964,7 @@ function generar_comprobante(values,nombreComp){
       if(sunat_setup.pdf == "TICKET"){
         A4="Ticket"
       }
-      
+      	
 	  // onclick="pdf(\''+nombreComp+'\',\'Venta\')"
 			frappe.msgprint({message: nombreComp+
       ' ha sido emitida con éxito <br/><br/> <a  \
@@ -1318,7 +1251,4 @@ function pdf(pdf, tipoC){
   }
   window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
   limpiar();
-}
-function print(){
-	
 }

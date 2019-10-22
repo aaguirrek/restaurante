@@ -25,8 +25,12 @@ app_license = "OLP"
 # include js in page
 page_js = {
     "caja-del-restaurante" : [
-        "/assets/restaurante/js/caja/temporal.js",
-        "/assets/restaurante/js/caja/items.js"
+        "public/js/caja/temporal.js",
+        "public/js/caja/items.js"
+    ],
+    "cocina" : [
+        "public/js/cocina/cocina.js",
+        "public/js/cocina/socket.js"
     ]
 }
 

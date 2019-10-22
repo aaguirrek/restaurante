@@ -168,13 +168,17 @@ def saveTemporal(restaurant_table, items,total,subtotal,igv, customer="Anonimo")
     servido = item["servido"]
     extras  = json.dumps(item["extras"])
     tipo    = item["tipo"]
+    imprimido = 0
+    if "imprimido" in item:
+      imprimido = item["imprimido"]
     itemsTemp.append({
       "item": item["name"],
       "qty": item["qty"],
       "rate": item["rate"],
       "extra": extras,
       "servido": servido,
-      "tipo": tipo
+      "tipo": tipo,
+      "imprimido": imprimido
     })
   
   if frappe.db.exists("Restaurant Table Temp","Restemp-"+restaurant_table):
