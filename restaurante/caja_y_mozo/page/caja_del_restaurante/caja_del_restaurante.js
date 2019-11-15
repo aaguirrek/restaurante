@@ -919,7 +919,7 @@ function plato_delete(item_name,item){
 }
 function generar_comprobante(values,nombreComp){
   var eltipo="V";
-  var elementoUrl="fri";
+  var elementoUrl="Venta";
   var A4="A4";
 	var settings = {
 		"async": false,
@@ -1188,11 +1188,11 @@ function generar_comprobante(values,nombreComp){
       }
       if(values.tipo_comprobante == "Boleta"){
         eltipo="B";
-        elementoUrl="fsi";
+        elementoUrl="Boleta";
       }
       if(values.tipo_comprobante == "Factura"){
         eltipo="F";
-        elementoUrl="fsi";
+        elementoUrl="Factura";
       }
       
 			frappe.msgprint({message: values.tipo_comprobante+
@@ -1214,7 +1214,7 @@ function generar_comprobante(values,nombreComp){
 }
 function qr(){
   var eltipo="V";
-  var elementoUrl="fri";
+  var elementoUrl="Venta";
   var A4="A4";
   if(sunat_setup.pdf == "A5"){
     A4="A4"
@@ -1224,16 +1224,16 @@ function qr(){
   }
   if(tipoC == "Boleta"){
     eltipo="B";
-    elementoUrl="fsi";
+    elementoUrl="Boleta";
   }
   if(tipoC == "Factura"){
     eltipo="F";
-    elementoUrl="fsi";
+    elementoUrl="Factura";
   }
 }
 function pdf(pdf, tipoC){
   var eltipo="V";
-  var elementoUrl="fri";
+  var elementoUrl="Venta";
   var A4="A4";
   if(sunat_setup.pdf == "A5"){
     A4="A4"
@@ -1243,11 +1243,11 @@ function pdf(pdf, tipoC){
   }
   if(tipoC == "Boleta"){
     eltipo="B";
-    elementoUrl="fsi";
+    elementoUrl="Boleta";
   }
   if(tipoC == "Factura"){
     eltipo="F";
-    elementoUrl="fsi";
+    elementoUrl="Factura";
   }
   window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
   limpiar();
