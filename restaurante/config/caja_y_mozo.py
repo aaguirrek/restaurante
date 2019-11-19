@@ -12,6 +12,7 @@ def get_data():
 					"type": "page",
 					"name": "caja-del-restaurante",
 					"label": _("Nueva venta"),
+					"dependencies": ["Restaurant","Restaurant Menu", "Restaurant Table"],
 					"onboard": 1
 				},
 				{
@@ -19,6 +20,7 @@ def get_data():
 					"name": "Restaurant Order Entry",
 					"label": _("Orden de entrada del restaurant"),
 					"link": "Form/Restaurant Order Entry",
+					"dependencies": ["Restaurant","Restaurant Menu", "Restaurant Table"],
 					"onboard": 1
 				},
 				{
@@ -50,6 +52,7 @@ def get_data():
 					"type": "doctype",
 					"name": "Customer",
 					"description": _("Customer database."),
+					"onboard": 1
 				},
 				{
 					"type": "doctype",
@@ -79,13 +82,15 @@ def get_data():
 					"type": "doctype",
 					"name": "Sales Invoice",
 					"label": "Ventas",
-					"description": _("Bills raised to Customers.")
+					"description": _("Bills raised to Customers."),
+					"onboard": 1
 				},
 				{
 					"type": "doctype",
 					"name": "Purchase Invoice",
 					"label": "Compras",
-					"description": _("Bills raised by Suppliers.")
+					"description": _("Bills raised by Suppliers."),
+					"onboard": 1
 				},
 				{
 					"type": "doctype",
@@ -112,7 +117,8 @@ def get_data():
 				{
 					"type": "doctype",
 					"name": "Item",
-					"label": "Productos"
+					"label": "Productos",
+					"onboard": 1
 				},
         {
 					"type": "doctype",
@@ -139,10 +145,12 @@ def get_data():
 				{
 					"type": "doctype",
 					"name": "Factura",
+					"onboard": 1
 				},
         {
 					"type": "doctype",
 					"name": "Boleta",
+					"onboard": 1
 				},
         {
 					"type": "doctype",
