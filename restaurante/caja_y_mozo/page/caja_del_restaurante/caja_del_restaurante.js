@@ -526,8 +526,12 @@ function plato_servido(values, iditem ){
 		}
 	});
 }
+
 function pagarTodo(){
 	var iii=0;
+	
+
+	
 	if ($(".octicon-bell").length > 0){
 		$('.octicon-bell').each(function() {
 			console.log(this)
@@ -545,114 +549,139 @@ function pagarTodo(){
 	}
 
 	let complementos = [];
-	let modosPagos = null;
-  	let cliente = null;
+	frappe.db.get_doc('Sales Invoice', null, { restaurant_table: $('input[data-fieldname="mesarestaurant"]').val() })
+    .then(doc => {
+		complementos.push({
+			label: 'Pre Cuenta',
+			fieldname: 'Cuenta',
+			fieldtype: 'Button',
+			click(){
+				window.open('/VentaTicket?c='+doc.name,'_blank');
+			}
+		})
+		complementos.push({
+			fieldname: 'saltos pre',
+			fieldtype: 'Section Break'
+		})
+
+
+		let modosPagos = null;
+		let cliente = null;
+	  frappe.call({
+		  method: "frappe.client.get",
+		  args: {
+			  doctype: "Modos de pago"
+		  },
+		  async: false,
+		  callback: function(r) {
+			  modosPagos = r.message
+		  }
+	  })
 	frappe.call({
-		method: "frappe.client.get",
-		args: {
-			doctype: "Modos de pago"
-		},
-		async: false,
-		callback: function(r) {
-			modosPagos = r.message
-		}
-	})
-  frappe.call({
-		method: "frappe.client.get",
-		args: {
-			doctype: "Customer",
-      name: $('input[data-fieldname="customer"]').val()
-		},
-		async: false,
-		callback: function(r) {
-			cliente = r.message
-		}
-	})
-	for (var i in modosPagos.items ){
-		if(i % 2 == 0 && i!= 0 ){
-			complementos.push({
-				label:"",
-				fieldname:"pagar_section_"+i,
-				fieldtype:"Section Break",
-			})
-		}
-		if(modosPagos.items[i].metodo_de_pago == "Efectivo")
-		{
-			complementos.push({
-				label: modosPagos.items[i].metodo_de_pago,
-				fieldname:modosPagos.items[i].metodo_de_pago,
-				fieldtype:"Currency",
-				placeholder:"0.00",
-				default: parseFloat( $("#total_total").text().replace("S/.", "") )
-			})
-		}else{
-			complementos.push({
-				label: modosPagos.items[i].metodo_de_pago,
-				fieldname:modosPagos.items[i].metodo_de_pago,
-				fieldtype:"Currency",
-				placeholder:"0.00"
-			})
-		}
+		  method: "frappe.client.get",
+		  args: {
+			  doctype: "Customer",
+		name: $('input[data-fieldname="customer"]').val()
+		  },
+		  async: false,
+		  callback: function(r) {
+			  cliente = r.message
+		  }
+	  })
+	  for (var i in modosPagos.items ){
+		  if(i % 2 == 0 && i!= 0 ){
+			  complementos.push({
+				  label:"",
+				  fieldname:"pagar_section_"+i,
+				  fieldtype:"Section Break",
+			  })
+		  }
+		  if(modosPagos.items[i].metodo_de_pago == "Efectivo")
+		  {
+			  complementos.push({
+				  label: modosPagos.items[i].metodo_de_pago,
+				  fieldname:modosPagos.items[i].metodo_de_pago,
+				  fieldtype:"Currency",
+				  placeholder:"0.00",
+				  default: parseFloat( $("#total_total").text().replace("S/.", "") )
+			  })
+		  }else{
+			  complementos.push({
+				  label: modosPagos.items[i].metodo_de_pago,
+				  fieldname:modosPagos.items[i].metodo_de_pago,
+				  fieldtype:"Currency",
+				  placeholder:"0.00"
+			  })
+		  }
+		  
+		  if(i % 2 == 0 ){
+			  complementos.push({
+				  label:"",
+				  fieldname:"pagar_column_"+i,
+				  fieldtype:"Column Break",
+			  })
+		  }
+	  }
+	  complementos.push({
+		  label:"Desea Boleta / Factura",
+		  fieldname:"pagar_section_break_1",
+		  fieldtype:"Section Break",
+	  })
+	  complementos.push({
+		  label:"Tipo de Comprobante",
+		  fieldname:"tipo_comprobante",
+		  fieldtype:"Select",
+		  options:[
+			  "",
+			  "Factura",
+			  "Boleta"
+		  ],
+		  default:""
+	  })
+	  complementos.push({
+		  label:"Desea Boleta / Factura",
+		  fieldname:"pagar_section_break_2",
+		  fieldtype:"Section Break",
+	  })
+	  complementos.push({
+		  label:"Ruc/Dni",
+		  fieldname:"numero_doc",
+		  fieldtype:"Data",
+		  default: cliente.tax_id
+	  })
+	  complementos.push({
+		  fieldname:"Column Break",
+		  fieldtype:"Column Break",
+		  default:""
+	  })
+	  complementos.push({
+		  label:"Correo Electrónico",
+		  fieldname:"email",
+		  fieldtype:"Data",
+		  default: cliente.email_id
+	  })
+
+
+
+       
 		
-		if(i % 2 == 0 ){
-			complementos.push({
-				label:"",
-				fieldname:"pagar_column_"+i,
-				fieldtype:"Column Break",
-			})
-		}
-	}
-	complementos.push({
-		label:"Desea Boleta / Factura",
-		fieldname:"pagar_section_break_1",
-		fieldtype:"Section Break",
-	})
-	complementos.push({
-		label:"Tipo de Comprobante",
-		fieldname:"tipo_comprobante",
-		fieldtype:"Select",
-		options:[
-			"",
-			"Factura",
-			"Boleta"
-		],
-		default:""
-	})
-	complementos.push({
-		label:"Desea Boleta / Factura",
-		fieldname:"pagar_section_break_2",
-		fieldtype:"Section Break",
-	})
-	complementos.push({
-		label:"Ruc/Dni",
-		fieldname:"numero_doc",
-		fieldtype:"Data",
-		default: cliente.tax_id
-	})
-	complementos.push({
-		fieldname:"Column Break",
-		fieldtype:"Column Break",
-		default:""
-	})
-	complementos.push({
-		label:"Correo Electrónico",
-		fieldname:"email",
-		fieldtype:"Data",
-		default: cliente.email_id
+		let d = new frappe.ui.Dialog({
+			title: name,
+			fields: complementos,
+			primary_action_label: 'Enviar',
+			primary_action(values) {
+				generarVenta(values)
+				d.hide();
+			}
+		});
+		
+		d.show();
+	
+		
 	})
 
-	let d = new frappe.ui.Dialog({
-		title: name,
-		fields: complementos,
-		primary_action_label: 'Enviar',
-		primary_action(values) {
-			generarVenta(values)
-			d.hide();
-		}
-	});
-	
-	d.show();
 }
+
 function generarVenta(values){
 	var elementos=[];
 	
