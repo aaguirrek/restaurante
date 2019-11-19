@@ -13,6 +13,7 @@ from erpnext.controllers.queries import item_query
 @frappe.whitelist()
 def get_init(restaurant_table = ""):
   if restaurant_table == "":
+
     respuesta   = frappe.get_all( "Restaurant Table", order_by="name asc", limit_page_length = 1)
     estado = "sucess"
     get_datos = {}
