@@ -53,7 +53,6 @@ def sync(restaurant_table, items, ct="Anonimo"):
   globales   = frappe.get_doc( "Global Defaults" )
   stock      = frappe.get_doc( "Stock Settings" )
   customer   = frappe.get_doc( "Customer", ct )
-  company    = frappe.get_doc( "Company", globales.default_company )
   menu       = frappe.get_doc( "Restaurant Menu", restaurant.active_menu)
   itemList   = []
   for item in items:
@@ -120,7 +119,6 @@ def validar(restaurant_table, items, payments, tipoComprobante=0, customer="Anon
   company    = frappe.get_doc( "Company", globales.default_company )
   stock      = frappe.get_doc( "Stock Settings" )
   sunat      = frappe.get_doc("Setup")
-  itemList   = []
   
   
   docname = frappe.db.get_value('Sales Invoice', {'docstatus': 0 , 'restaurant_table': restaurant_table })
@@ -158,7 +156,6 @@ def validar(restaurant_table, items, payments, tipoComprobante=0, customer="Anon
 @frappe.whitelist()
 def saveTemporal(restaurant_table, items,total,subtotal,igv, customer="Anonimo"):
   items      = json.loads(items)
-  globales   = frappe.get_doc( "Global Defaults" )
   customer   = frappe.get_doc( "Customer", customer )
   itemsTemp  = []
   
@@ -212,9 +209,10 @@ def remove_temporal(restaurant_table):
   if frappe.db.exists("Sales Invoice",{"restaurant_table": restaurant_table, "docstatus":0 }):
     docname = frappe.db.get_value('Sales Invoice', {'docstatus': 0 , 'restaurant_table': restaurant_table })
     frappe.delete_doc("Sales Invoice", docname)
-    
+    doc = None
   if frappe.db.exists("Restaurant Table Temp","Restemp-"+restaurant_table):
-    doc = frappe.delete_doc("Restaurant Table Temp","Restemp-"+restaurant_table)
+    frappe.delete_doc("Restaurant Table Temp","Restemp-"+restaurant_table)
+    doc = {} 
   else:
     doc = {"exc_type":"DoesNotExistError"}
   return doc

@@ -5,18 +5,21 @@ from frappe import _
 def get_data():
 	return [
 		{
-      "label": _("Restaurante"),
+      		"label": _("Restaurante"),
+			"icon": "fa fa-star",
 			"items": [
 				{
 					"type": "page",
 					"name": "caja-del-restaurante",
 					"label": _("Nueva venta"),
+					"onboard": 1
 				},
 				{
 					"type": "doctype",
 					"name": "Restaurant Order Entry",
 					"label": _("Orden de entrada del restaurant"),
 					"link": "Form/Restaurant Order Entry",
+					"onboard": 1
 				},
 				{
 					"type": "doctype",
