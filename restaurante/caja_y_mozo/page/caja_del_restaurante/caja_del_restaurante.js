@@ -757,7 +757,21 @@ function limpiar(){
 				indicator:'green'
 				
 			});
-			location.reload();
+
+
+
+			console.clear();
+			$("#total_total").text("S/.0.00");
+			$("#total_igv").text("S/.0.00");
+			$("#total_subtotal").text("S/.0.00");
+			$("#menu_items").html('');
+			platos = {};
+			extras = {};
+			$('button[data-dismiss="modal"]').trigger("click");
+			$(".msgprint").html("")
+
+
+			//location.reload();
 		}
 	})
 	
@@ -1331,4 +1345,12 @@ function pdf(pdf, tipoC){
 	extras = {};
 	$('button[data-dismiss="modal"]').trigger("click");
 	$(".msgprint").html("")
+	frappe.show_alert({
+		message:"mesa limpiada",
+		time:5,
+		indicator:'green'
+		
+	});
+
+
 }

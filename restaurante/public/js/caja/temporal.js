@@ -138,7 +138,7 @@ function myFunctionAfterPrint() {
     kendo.drawing.drawDOM("#menu_items",{ 
           paperSize: ["74mm","120mm"],
           margin: { top: "2mm", bottom: "2mm" },
-          scale: 1,
+          scale: 0.7,
           height: "auto"
     })
     .then(function(group){
