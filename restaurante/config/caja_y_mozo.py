@@ -14,6 +14,12 @@ def get_data():
 				},
 				{
 					"type": "doctype",
+					"name": "Restaurant Order Entry",
+					"label": _("Orden de entrada del restaurant"),
+					"link": "Form/Restaurant Order Entry",
+				},
+				{
+					"type": "doctype",
 					"name": "Restaurant Table",
 					"label": _("Reservas"),
 				},
