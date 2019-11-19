@@ -14,9 +14,9 @@
             </div>
             <div class="title col-md-5" style="font-size: 9pt;">{{values.itemname}}</div>
             <div class="title col-md-2" style="padding-left: 3px;padding-right: 3px;font-size: 9pt;">
-                <a onclick="plato_minus( \'{{values.itemname}}\' , this )" id="{{values.id}}_minus" class="vminus"><i class=" octicon octicon-dash" style="color:#5e64ff;padding-left: 4px;padding-right: 4px;"></i></a>
+                <a onclick="plato_minus( \'{{values.itemname}}\' , this )" id="{{values.id}}_minus" class="vminus" style="display: none!important;"><i class=" octicon octicon-dash" style="color:#5e64ff;padding-left: 4px;padding-right: 4px;"></i></a>
                 <span id="{{values.id}}_qty" class="vqty">{{values.qty}}</span>
-                <a onclick="plato_plus( \'{{values.itemname}}\' , this )" id="{{values.id}}_plus" class="vplus"><i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a>
+                <a onclick="plato_plus( \'{{values.itemname}}\' , this )" id="{{values.id}}_plus" class="vplus" style="display: none!important;"><i class="octicon octicon-plus" style="color:#5e64ff;padding-left: 4px; padding-right: 4px;"></i></a>
             </div>
             <div class="title col-md-1 vlito">
                 {%  if( "servido" in values   ){   %}

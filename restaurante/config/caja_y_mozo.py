@@ -24,6 +24,13 @@ def get_data():
 					"onboard": 1
 				},
 				{
+					"type": "page",
+					"name": "cocina",
+					"label": _("cocina"),
+					"dependencies": ["Restaurant","Restaurant Menu", "Restaurant Table"],
+					"onboard": 1
+				},
+				{
 					"type": "doctype",
 					"name": "Restaurant Table",
 					"label": _("Reservas"),
@@ -43,6 +50,19 @@ def get_data():
 					"name": "Restaurant",
 					"label": _("Ajustes y la carta activa"),
 				},
+				{
+					"type": "doctype",
+					"name": "Complementos del Plato",
+					"label": _("Toppings"),
+					"link": "Form/Complementos del Plato",
+					"dependencies": ["Restaurant","Restaurant Menu", "Restaurant Table"]
+				},
+				{
+					"type": "doctype",
+					"name": "Ingredientes",
+					"label": _("Ingredientes"),
+				},
+				
 			]
     },
 		{

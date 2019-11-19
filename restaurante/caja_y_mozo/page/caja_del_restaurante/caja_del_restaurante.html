@@ -36,9 +36,9 @@ body[data-route="caja-del-restaurante"]{
 .flex-container > div.item {
     margin: 10px;
     text-align: center;
-    min-height: 150px;
+    min-height: 120px;
+    max-height: 120px;
     padding-top: 10px;
-    max-height: 150px;
 	border-radius:5px;
 	border: 1px solid #cccccc;
 	width: 22%;
@@ -144,9 +144,17 @@ body[data-route="caja-del-restaurante"]{
 								padding-left: 15px;
 								padding-right: 15px;
 							">
+							
+
 							<div class="col-md-4" style="padding-top: 15px; border-top: 1px solid #ccc;border-bottom:1px solid #ccc;">
 								<div class="control-input-wrapper customer">
 												
+								</div>
+								<div class="row">
+									<div class="title col-md-6 text-center bold" style="font-size: 9pt;font-size: 9pt;" >Item</div>
+									<div class="title col-md-2 bold" style="font-size: 9pt;font-size: 9pt;">Cant</div>
+									<div class="title col-md-2 text-right bold" style="font-size: 9pt;font-size: 9pt;">P.U</div>
+									<div class="title col-md-2 bold" style="font-size: 9pt;font-size: 9pt;">P.T</div>
 								</div>
 								<div class="row" id="menu_items" style="
     max-height: 410px;
@@ -192,7 +200,7 @@ body[data-route="caja-del-restaurante"]{
 														max-height: 30px;
 														min-height: 30px;
 														text-align: center;
-														background: rgba(0,0,0,0.03);
+														background: #5e64ff;
 														padding-bottom: 5px;
 														padding-top: 5px;
 														font-weight:bold;
@@ -200,6 +208,7 @@ body[data-route="caja-del-restaurante"]{
 												    bottom: 0;
 												    left: 0;
 												    width: 100%;
+													color:white;
 												">
 
 												S/. {{ restaurantMenu[i].menu.rate }}

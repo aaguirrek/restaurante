@@ -136,8 +136,8 @@ function myFunctionAfterPrint() {
     $(".title.col-md-5").removeClass("col-md-5");
       
     kendo.drawing.drawDOM("#menu_items",{ 
-          paperSize: ["74mm","0mm"],
-          margin: { top: "1cm", bottom: "1cm" },
+          paperSize: ["74mm","120mm"],
+          margin: { top: "2mm", bottom: "2mm" },
           scale: 1,
           height: "auto"
     })

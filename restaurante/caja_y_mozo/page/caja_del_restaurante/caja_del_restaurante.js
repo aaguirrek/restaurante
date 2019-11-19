@@ -237,17 +237,30 @@ function sendItem (name, rate,item_group){
 	extras={};
 	var afectados=0;
 	var item_id=0;
+	let arrayComplementos=[]
 	for (let i in toppings.complemento ){
 		if(toppings.complemento[i].refer == item_group)
 		{
+			arrayComplementos = [];
+			frappe.call({
+				method: "frappe.client.get_list",
+				args: {
+					doctype: "Item",		
+					filters:[["item_group","=",toppings.complemento[i].item]]
+
+				},
+				async: false,
+				callback: function(r) {
+				for (var oe in r.message ){
+					arrayComplementos.push( r.message[oe].name ) 
+				}
+				}
+			});
 			topp = {
 				label: toppings.complemento[i].nombre,
-				filters : {
-					"item_group":toppings.complemento[i].item
-				},
 				fieldname: "item"+item_id,
-				fieldtype: 'Link',
-				options: "Item" ,
+				fieldtype: 'Select',
+				options: arrayComplementos ,
 				
 				default:toppings.complemento[i].default
 				
@@ -255,8 +268,8 @@ function sendItem (name, rate,item_group){
 			complementos.push(topp);
 			extras["item"+item_id] = {
 				fieldname: "item"+item_id,
-				fieldtype: 'Link',
-				options: "Item" ,
+				fieldtype: 'Select',
+				options: arrayComplementos ,
 				default:toppings.complemento[i].default
 			};
 			afectados++;
@@ -274,8 +287,8 @@ function sendItem (name, rate,item_group){
 		});
 		extras["item0"] = {
 			fieldname: "item0",
-			fieldtype: 'Link',
-			options: "Item" ,
+			fieldtype: 'Select',
+			options: [0],
 			default:0,
 			hidden:1
 		};
@@ -548,7 +561,7 @@ function pagarTodo(){
 	}
 
 	let complementos = [];
-	frappe.db.get_doc('Sales Invoice', null, { restaurant_table: $('input[data-fieldname="mesarestaurant"]').val() })
+	frappe.db.get_doc('Sales Invoice', null, { restaurant_table: $('input[data-fieldname="mesarestaurant"]').val(), docstatus:0 })
     .then(doc => {
 		complementos.push({
 			label: 'Pre Cuenta',
@@ -720,9 +733,7 @@ function generarVenta(values){
 		},
 		async: true,
 		callback: function(r) {
-			if(r.exc_type == "DoesNotExistError"){
 				generar_comprobante(values,r.message.name);
-			}
 		},
 	});
 }
@@ -981,7 +992,16 @@ function generar_comprobante(values,nombreComp){
       title: 'Venta Generada', indicator:'green'});
        setTimeout(function(e){
 			$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp ); 
-			  cur_dialog.onhide = function(e){ limpiar() }
+			  cur_dialog.onhide = function(e){
+				console.clear();
+				$("#total_total").text("S/.0.00");
+				$("#total_igv").text("S/.0.00");
+				$("#total_subtotal").text("S/.0.00");
+				$("#menu_items").html('');
+				platos = {};
+				extras = {};
+
+			   }
       },500)
 		
 		return;
@@ -1004,7 +1024,18 @@ function generar_comprobante(values,nombreComp){
       title: 'Venta Generada', indicator:'green'});
        setTimeout(function(e){
 			$('#el_codigoqr').qrcode( values.pdf ); 
-			  cur_dialog.onhide = function(e){ limpiar() }
+			  cur_dialog.onhide = function(e){ 
+				  
+				console.clear();
+				$("#total_total").text("S/.0.00");
+				$("#total_igv").text("S/.0.00");
+				$("#total_subtotal").text("S/.0.00");
+				$("#menu_items").html('');
+				platos = {};
+				extras = {};
+
+
+			   }
       },500)
 		//frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
 	
@@ -1233,7 +1264,17 @@ function generar_comprobante(values,nombreComp){
       ',title: values.tipo_comprobante+' emitida', indicator:'green'});
       setTimeout(function(e){
 			  $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+r.message.name ); 
-        cur_dialog.onhide = function(e){ limpiar() }
+        cur_dialog.onhide = function(e){ 	
+			
+			console.clear();
+			$("#total_total").text("S/.0.00");
+			$("#total_igv").text("S/.0.00");
+			$("#total_subtotal").text("S/.0.00");
+			$("#menu_items").html('');
+			platos = {};
+			extras = {};
+
+		 }
       },500)
       
       
@@ -1280,5 +1321,14 @@ function pdf(pdf, tipoC){
     elementoUrl="Factura";
   }
   window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
-  limpiar();
+	
+	console.clear();
+	$("#total_total").text("S/.0.00");
+	$("#total_igv").text("S/.0.00");
+	$("#total_subtotal").text("S/.0.00");
+	$("#menu_items").html('');
+	platos = {};
+	extras = {};
+	$('button[data-dismiss="modal"]').trigger("click");
+	$(".msgprint").html("")
 }
