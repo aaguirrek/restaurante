@@ -549,7 +549,7 @@ function pagarTodo(){
 	}
 
 	let complementos = [];
-	frappe.db.get_doc('Sales Invoice', null, { restaurant_table: $('input[data-fieldname="mesarestaurant"]').val() })
+	frappe.db.get_doc('Sales Invoice', null, { restaurant_table: $('input[data-fieldname="mesarestaurant"]').val(), doc_status:0 })
     .then(doc => {
 		complementos.push({
 			label: 'Pre Cuenta',
