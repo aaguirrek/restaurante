@@ -35,7 +35,7 @@ page_js = {
 }
 
 # include js in doctype views
-doctype_js = {"Sales Invoice" : "public/js/sales_invoice.js"}
+doctype_js = {"Sales Invoice" : "public/js/sales_invoice.js","Restaurant Order Entry" : "public/js/orden_venta.js"}
 # doctype_list_js = {"doctype" : "/assets/restaurante/js/restaurante.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}

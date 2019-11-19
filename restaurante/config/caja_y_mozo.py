@@ -62,6 +62,11 @@ def get_data():
 					"name": "Ingredientes",
 					"label": _("Ingredientes"),
 				},
+				{
+					"type": "doctype",
+					"name": "Modos de pago",
+					"label": _("Modos de pago del Restaurante"),
+				},
 				
 			]
     },
