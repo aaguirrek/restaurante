@@ -72,7 +72,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		callback: function(r) {	all_tables = r.message }
 	});
 	tablesTotales=[];
-	tablesTotales.push("");
 	for(var k in all_tables ){
 		tablesTotales.push(all_tables[k].name);
 	}
@@ -85,8 +84,9 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		callback: function(r) {	all_filtros = r.message.complemento }
 	});
 	FiltrosTotales=[];
-	for(var k in all_filtros ){
-		FiltrosTotales.push(all_filtros[k].nombre);
+	FiltrosTotales.push("");
+	for(var a in all_filtros ){
+		FiltrosTotales.push(all_filtros[a].nombre);
 	}
 	
 	
