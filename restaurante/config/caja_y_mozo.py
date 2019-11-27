@@ -64,6 +64,11 @@ def get_data():
 				},
 				{
 					"type": "doctype",
+					"name": "Filtros del Plato",
+					"label": _("Filtros del Restaurante"),
+				},
+				{
+					"type": "doctype",
 					"name": "Modos de pago",
 					"label": _("Modos de pago del Restaurante"),
 				},

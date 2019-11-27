@@ -19,7 +19,8 @@ var fgroup = null;
 var all_tables = {};
 var tablesTotales=[];
 var temptopping={};
-
+var FiltrosTotales=[];
+var all_filtros ={};
 
 var normalize = (function() {
   var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
@@ -74,6 +75,20 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	for(var k in all_tables ){
 		tablesTotales.push(all_tables[k].name);
 	}
+	
+	
+	frappe.call({
+		method:"frappe.client.get",
+		args:{doctype: "Filtros del Plato"},
+		async: false,
+		callback: function(r) {	all_filtros = r.message.complemento }
+	});
+	FiltrosTotales=[];
+	for(var k in all_filtros ){
+		FiltrosTotales.push(all_filtros[k].nombre);
+	}
+	
+	
 	frappe.call({
 		method: "frappe.client.get",
 		args: {
@@ -139,31 +154,42 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			fieldname: "filtros",
 			placeholder: "Filtrar los Productos"
 		},
-		change:function(frm){
-			$('input[data-fieldname="filtros"]').keyup(function(){
-				$(".item").show();
-				$(".item > span:not(:contains("+$('input[data-fieldname="filtros"]').val()+"))").parent().hide();
-			});
-		},
 		render_input: true
 	});//K8LS7fToSmk2
 	ffilter_item.make();
 	fgroup = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".group"),
 		df: {
-			fieldtype: "Link",
-			options: "Item Group",
+			fieldtype: "Select",
+			options: FiltrosTotales,
 			fieldname: "groups",
-			placeholder: "Filtrar por",
-			hidden:1
+			placeholder: "Filtrar por categoría",
+			
+		},
+		change:function(frm){
+				$(".item").show();
+				$(".item > span:not(:contains("+$('select[data-fieldname="groups"]').val()+"))").parent().hide();
 		},
 		render_input: true
 	});
 	fgroup.make();
 	
 	change_mesa();
+	
+    setTimeout(initFiltros,100);
 }
 
+function initFiltros(){
+	if($('input[data-fieldname="filtros"]').val() !== undefined){
+			$('input[data-fieldname="filtros"]').keyup(function(){
+				$(".item").show();
+				$(".item > span:not(:contains("+$('input[data-fieldname="filtros"]').val()+"))").parent().hide();
+			});
+	}else{
+	    setTimeout(initFiltros,100);
+	
+	}
+}
 
 function change_mesa(mesa=""){
 	console.clear();
@@ -207,7 +233,7 @@ function change_mesa(mesa=""){
 								item_values["item"+q] = ld.extra["item"+q].value;
 								q++;
 							}
-							add_item(item_values);
+							add_item(item_values, "si");
 						}
 					});
 					
@@ -330,12 +356,15 @@ function sendItem (name, rate,item_group){
 	
 	d.show();
 }
-function add_item(values){
+function add_item(values, cambio="no"){
 	//console.log(values)
 	let i = 0;
+	
 	values.elements=[];
 	let toppi=[];
 	let idstring = "";
+	
+	
 	while(values["item"+i] !== undefined ){
 		values.elements.push(values["item"+i]);
 		idstring += values["item"+i]+"|";
@@ -343,12 +372,13 @@ function add_item(values){
 			extras["item"+i] = {};
 		}
 		if(values["item"+i] !== undefined){
-			//console.log(extras["item"+i]);
-			//console.log(values["item"+i]);
 			extras["item"+i].value = values["item"+i];
 		}
 		i++;
 	}
+	
+	
+	
 	if(values.comentario!== undefined){
 		extras.comentario = values.comentario;
 	}else{
@@ -357,8 +387,12 @@ function add_item(values){
 	if(values.imprimido === undefined){
 		values.imprimido = 0;
 	}
+	
+	
 	idstring += values.comentario;
 	let isservido=0;
+	
+	
 	if("servido" in values){
 		if(values.servido == 1){
 			idstring +="|newunique: "+ new Date().getTime();
@@ -369,6 +403,8 @@ function add_item(values){
 	id = id.replace(/=/g, "_");
 	values.id=id;
 	let unitqty = parseInt( values.qty  );
+
+
 	if( $("#"+id+"_id" ).length ){
 		let qty = (parseInt( $("#"+id+"_qty").text() ) + parseInt( values.qty ) );
 		$("#"+id+"_qty").text( qty );
@@ -378,6 +414,7 @@ function add_item(values){
 		let template = frappe.render_template("item", { values:values } );
 		$("#menu_items").append(template);
 	}
+
 	let itotal=parseFloat( $("#total_total").text().replace("S/.", "") );
 	let iitem = parseFloat(values.rate);
 	let iqty = unitqty;
@@ -387,12 +424,17 @@ function add_item(values){
 	$("#total_total").text( "S/." +  itotal );
 	$("#total_igv").text(  "S/." + itotaligv );
 	$("#total_subtotal").text(  "S/." + parseFloat(itotal - itotaligv).toFixed(2) );
+	
+	
 	values.qty = iqty;
 	platos[values.id] = values;
 	extra[values.id] = extras;
 	
-	cur_doc.sync();
-	doc_temporal.save();
+	if(cambio == "no"){
+		
+		cur_doc.sync();
+		doc_temporal.save();
+	}
 	
 	let tipo = "";
 	frappe.call({
@@ -720,6 +762,7 @@ function generarVenta(values){
 			}
 		}
 	}
+	cur_doc.synced();
 	frappe.call({
 		method: "restaurante.caja.validar",
 		args: {
@@ -775,138 +818,6 @@ function limpiar(){
 		}
 	})
 	
-}
-function plato_minus(item_name,item){
-	
-	elid = item.id
-	elid = elid.replace("_minus","");
-	if(platos[elid].qty > 1)
-	{
-		platos[elid].qty = platos[elid].qty - 1;
-		let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
-		itot = itot - platos[elid].rate;
-		let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
-		let subt= itot - iigv;
-
-		$("#total_total").text("S/." + itot );
-		$("#total_subtotal").text("S/." + subt);
-		$("#total_igv").text("S/." + iigv );
-	}
-	var elementos=[];
-	for (var o in platos){
-      elementos.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "uom": "Números",
-	      "rate": platos[o].rate
-      });
-	}
-	frappe.call({
-		method: "restaurante.caja.sync",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			items:elementos
-		},
-		async: true,
-		callback: function(r) {
-			if(r.message == "no encontrado"){
-				$("#"+values.id+"_href").hide()
-				
-				$("#"+values.id+"_href").css("color","#cdcdcd")
-			}
-		},
-	});/*
-	let elementos2 = [];
-	for (var o in platos){
-      elementos2.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "rate": platos[o].rate,
-		  "extras": extra[o],
-		  "servido": 0,
-		  "tipo": "Directo"
-      })
-	}
-	frappe.call({
-		method: "restaurante.caja.saveTemporal",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
-			items: elementos2,
-			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
-		},
-		async: false,
-		callback: function(r) {},
-	});*/
-	doc_temporal.save();
-}
-function plato_plus(item_name,item){
-	elid = item.id
-	elid = elid.replace("_plus","");
-	if(platos[elid].qty > 1)
-	{
-		platos[elid].qty = platos[elid].qty + 1;
-		let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
-		itot = itot + platos[elid].rate;
-		let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
-		let subt= itot - iigv;
-
-		$("#total_total").text("S/." + itot );
-		$("#total_subtotal").text("S/." + subt);
-		$("#total_igv").text("S/." + iigv );
-	}
-	var elementos=[];
-	for (var o in platos){
-      elementos.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "uom": "Números",
-	      "rate": platos[o].rate
-      });
-	}
-	frappe.call({
-		method: "restaurante.caja.sync",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			items:elementos
-		},
-		async: true,
-		callback: function(r) {
-			if(r.message == "no encontrado"){
-			$("#"+values.id+"_href").hide(); $("#"+values.id+"_href").css("color","#cdcdcd");
-			}
-		},
-	});
-	/*
-	let elementos2 = [];
-	for (var o in platos){
-      elementos2.push({
-      	"name": platos[o].itemname,
-	      "qty": platos[o].qty,
-	      "rate": platos[o].rate,
-		  "extras": extra[o],
-		  "servido": 0,
-		  "tipo": "Directo"
-      })
-	}
-	frappe.call({
-		method: "restaurante.caja.saveTemporal",
-		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
-			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
-			items: elementos2,
-			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
-			subtotal: parseFloat( $("#total_subtotal").text().replace("S/.", "") )
-		},
-		async: false,
-		callback: function(r) {},
-	});*/
-	doc_temporal.save();
 }
 function plato_delete(item_name,item){
 	elid = item.id;
@@ -973,6 +884,7 @@ function plato_delete(item_name,item){
 	});
 }
 function generar_comprobante(values,nombreComp){
+	
   var eltipo="V";
   var elementoUrl="Venta";
   var A4="A4";
