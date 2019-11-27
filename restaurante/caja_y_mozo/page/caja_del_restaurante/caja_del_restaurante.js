@@ -72,6 +72,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		callback: function(r) {	all_tables = r.message }
 	});
 	tablesTotales=[];
+	tablesTotales.push("");
 	for(var k in all_tables ){
 		tablesTotales.push(all_tables[k].name);
 	}
