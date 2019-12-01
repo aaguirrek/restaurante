@@ -117,44 +117,22 @@ function myFunctionAfterPrint() {
 
 
   function exportar_pdf(){ 
-  	$("#menu_items").prepend('\
-		<div id="hora_fecha_oculta" style="\
-		    width: 100%;\
-		    text-align: center;\
-		">19/10/12 03:05:03\
-		</div>');
-  	$(".vdel").hide();
-  	$(".vminus").hide();
-  	$(".layout:not(.printable)").hide();
-  	$(".vplus").hide();
-  	$(".vlito").hide();
-  	$(".vrate").hide();
-    $(".vtotal").hide();
-    $(".title.col-md-1").hide();
-    $(".title.col-md-5").addClass("col-md-10");
-    $("#menu_items").addClass("paperSize");
-    $(".title.col-md-5").removeClass("col-md-5");
-      
-    kendo.drawing.drawDOM("#menu_items",{ 
-          paperSize: ["74mm","120mm"],
-          margin: { top: "2mm", bottom: "2mm" },
-          scale: 0.7,
-          height: "auto"
-    })
-    .then(function(group){
-        kendo.drawing.pdf.saveAs(group, "comanda.pdf");
-        $(".title.col-md-10").addClass("col-md-5");
-    	$(".title.col-md-10").removeClass("col-md-10");
-        $("#menu_items").removeClass("paperSize");
-        $(".title.col-md-1").show();
-      	$(".vdel").show();
-      	$(".vminus").show();
-      	$(".vplus").show();
-      	$(".layout:not(.printable)").show();
-      	$(".vlito").show();
-      	$(".vrate").show();
-        $(".vtotal").show();
-        $("#hora_fecha_oculta").remove();
-        myFunctionAfterPrint();
-    });
+	var message={}
+	var rep ={};
+
+	message.items = [];
+	for(var it in platos){
+		if(platos[it].imprimido== 0){
+			message.items.push({
+				item_name: platos[it].itemname,
+				qty: platos[it].qty,
+				extras:platos[it].elements
+			});
+			platos[it].imprimido = 1;
+		}
+	}
+	rep.message = message;
+	rep.web_seting = frappe.boot.website_settings;
+	rep.sunat = sunat_setup;
+	printer.emit("print-socket",JSON.stringify(rep));
 }

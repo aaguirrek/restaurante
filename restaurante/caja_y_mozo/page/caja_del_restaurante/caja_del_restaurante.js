@@ -3,7 +3,7 @@ frappe.provide('frappe.pages');
 frappe.provide('frappe.views');
 frappe.provide('sample_register');
 
-
+var printer = io('https://frappe.cf:4103/');
 var toppings=null;
 var page=null;
 var sunat_setup=null;
@@ -960,7 +960,7 @@ function generar_comprobante(values,nombreComp){
 				$("#menu_items").html('');
 				platos = {};
 				extras = {};
-
+				limpiar();
 
 			   }
       },500)
@@ -1200,6 +1200,7 @@ function generar_comprobante(values,nombreComp){
 			$("#menu_items").html('');
 			platos = {};
 			extras = {};
+			limpiar();
 
 		 }
       },500)
@@ -1230,6 +1231,7 @@ function qr(){
   }
 }
 function pdf(pdf, tipoC){
+	
   var eltipo="V";
   var elementoUrl="Venta";
   var A4="A4";
@@ -1242,10 +1244,55 @@ function pdf(pdf, tipoC){
   if(tipoC == "Boleta"){
     eltipo="B";
     elementoUrl="Boleta";
-  }
-  if(tipoC == "Factura"){
-    eltipo="F";
-    elementoUrl="Factura";
+    frappe.call({
+        method: "frappe.client.get",
+        args: {
+          doctype: "Boleta",
+          name: pdf
+        },
+        async: true,
+        callback: function(rep) {
+			rep.web_seting = frappe.boot.website_settings;
+			rep.sunat = sunat_setup;
+			printer.emit("print-socket",JSON.stringify(rep));
+        }
+    	});
+    
+  }else{
+	  if(tipoC == "Factura"){
+	    eltipo="F";
+	    elementoUrl="Factura";
+	    frappe.call({
+        method: "frappe.client.get",
+        args: {
+          doctype: "Factura",
+          name: pdf
+        },
+        async: true,
+        callback: function(rep) {
+			rep.web_seting = frappe.boot.website_settings;
+			rep.sunat = sunat_setup;
+			printer.emit("print-socket",JSON.stringify(rep));
+        }
+    	});
+    	
+	  }else{
+	  	frappe.call({
+        method: "frappe.client.get",
+        args: {
+          doctype: "Sales Invoice",
+          name: pdf
+        },
+        async: true,
+        callback: function(rep) {
+			rep.web_seting = frappe.boot.website_settings;
+			rep.sunat = sunat_setup;
+			printer.emit("print-socket",JSON.stringify(rep));
+        }
+    	});
+	  	
+	  }
+  	
   }
   window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
 	
@@ -1258,6 +1305,7 @@ function pdf(pdf, tipoC){
 	extras = {};
 	$('button[data-dismiss="modal"]').trigger("click");
 	$(".msgprint").html("")
+	limpiar();
 	frappe.show_alert({
 		message:"mesa limpiada",
 		time:5,
