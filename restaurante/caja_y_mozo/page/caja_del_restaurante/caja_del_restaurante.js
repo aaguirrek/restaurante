@@ -615,6 +615,7 @@ function pagarTodo(){
 			fieldname: 'Cuenta',
 			fieldtype: 'Button',
 			click(){
+				doc_temporal.precuenta();
 				window.open('/VentaTicket?c='+doc.name,'_blank');
 			}
 		})
