@@ -64,9 +64,9 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		async: true,
 		callback: function(r) {
 			sunat_setup = r.message;
-			/*if(r.message.directo == "DIRECTO"){
+			if(r.message.pdf == "TICKET"){
 				directo = 1;
-			}*/
+			}
 		}
 	});
 	frappe.call({
