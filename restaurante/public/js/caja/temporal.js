@@ -100,9 +100,13 @@ var doc_temporal = {
     	});
     },
     print: () =>{
-    	exportar_pdf();
+    	exportar_pdf("Comanda");
     	
-    }
+	},
+	precuenta: () =>{
+    	exportar_pdf("Pre Cuenta");
+    	
+	}
 };
 function myFunctionAfterPrint() {
     frappe.confirm('La Comanda se ha enviado a cocina?',
@@ -116,17 +120,19 @@ function myFunctionAfterPrint() {
 }
 
 
-  function exportar_pdf(){ 
+  function exportar_pdf(tipo){ 
 	var message={}
 	var rep ={};
-
+	let total = $("#total_total").text();
+	message.total = total.replace("S/.","")
 	message.items = [];
 	for(var it in platos){
-		if(platos[it].imprimido== 0){
+		if(platos[it].imprimido== 0 || tipo == "Pre Cuenta"){
 			message.items.push({
 				item_name: platos[it].itemname,
 				qty: platos[it].qty,
-				extras:platos[it].elements
+				extras:platos[it].elements,
+				rate:platos[it].rate
 			});
 			platos[it].imprimido = 1;
 		}
@@ -134,5 +140,9 @@ function myFunctionAfterPrint() {
 	rep.message = message;
 	rep.web_seting = frappe.boot.website_settings;
 	rep.sunat = sunat_setup;
+	rep.tipo = tipo;
+	rep.mesa = $('select[data-fieldname="mesarestaurant"]').val();
 	printer.emit("print-socket",JSON.stringify(rep));
+	
+	cur_doc.sync();
 }

@@ -21,6 +21,7 @@ var tablesTotales=[];
 var temptopping={};
 var FiltrosTotales=[];
 var all_filtros ={};
+var directo=0;
 
 var normalize = (function() {
   var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
@@ -63,6 +64,9 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		async: true,
 		callback: function(r) {
 			sunat_setup = r.message;
+			/*if(r.message.directo == "DIRECTO"){
+				directo = 1;
+			}*/
 		}
 	});
 	frappe.call({
@@ -1254,6 +1258,7 @@ function pdf(pdf, tipoC){
         callback: function(rep) {
 			rep.web_seting = frappe.boot.website_settings;
 			rep.sunat = sunat_setup;
+			rep.tipo = "Boleta";
 			printer.emit("print-socket",JSON.stringify(rep));
         }
     	});
@@ -1272,6 +1277,7 @@ function pdf(pdf, tipoC){
         callback: function(rep) {
 			rep.web_seting = frappe.boot.website_settings;
 			rep.sunat = sunat_setup;
+			rep.tipo = "Factura";
 			printer.emit("print-socket",JSON.stringify(rep));
         }
     	});
@@ -1287,6 +1293,7 @@ function pdf(pdf, tipoC){
         callback: function(rep) {
 			rep.web_seting = frappe.boot.website_settings;
 			rep.sunat = sunat_setup;
+			rep.tipo = "Sales Invoice";
 			printer.emit("print-socket",JSON.stringify(rep));
         }
     	});
