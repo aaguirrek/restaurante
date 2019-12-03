@@ -126,7 +126,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		},
 		render_input: true
 	});
-	fmesa.make();
 
 	fg = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".customer"),
@@ -138,7 +137,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		},
 		render_input: true
 	});
-	fg.make();
 	
 
 	ffilter_item = frappe.ui.form.make_control({
@@ -152,7 +150,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		},
 		render_input: true
 	});
-	ffilter_item.make();
 
 	
 	ffilter_item = frappe.ui.form.make_control({
@@ -164,7 +161,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		},
 		render_input: true
 	});//K8LS7fToSmk2
-	ffilter_item.make();
 	fgroup = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".group"),
 		df: {
@@ -180,7 +176,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 		},
 		render_input: true
 	});
-	fgroup.make();
 	
 	change_mesa();
 	
