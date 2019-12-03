@@ -23,6 +23,8 @@ var FiltrosTotales=[];
 var all_filtros ={};
 var directo=0;
 
+var mesas={};
+
 var normalize = (function() {
   var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
       to   = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
@@ -69,18 +71,19 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			}
 		}
 	});
+	
 	frappe.call({
 		method:"frappe.client.get_list",
 		args:{"doctype": "Restaurant Table","order_by":"name asc"},
 		async: false,
-		callback: function(r) {	all_tables = r.message }
+		callback: function(r) {	
+			all_tables = r.message;
+		}
 	});
 	tablesTotales=[];
 	for(var k in all_tables ){
 		tablesTotales.push(all_tables[k].name);
 	}
-	
-	
 	frappe.call({
 		method:"frappe.client.get",
 		args:{doctype: "Filtros del Plato"},
@@ -197,7 +200,53 @@ function initFiltros(){
 }
 
 function change_mesa(mesa=""){
+
+	if($(".mesa-disponible").length ){
+		$( ".mesa-disponible" ).removeClass('mesa-seleccionada');
+		$( "#mesa-"+mesa ).addClass('mesa-seleccionada');
+	}
+
+
+	if (Object.entries(mesas).length === 0 && mesas.constructor === Object){
+		
+		let ocupada = {};
+		$("#verMesasOcupadas").html("");
+		for(var tab in all_tables ){
+			ocupada = all_tables[tab].name;
+			if($("#verMesasOcupadas").length){
+				$("#verMesasOcupadas").append('<div class="mesa-disponible" id="mesa-'+ocupada+'" onclick="change_mesa( \''+ocupada+'\')" >'+ 
+					(ocupada).split("-")[( (ocupada).split("-").length -1)]+
+				'</div>');
+			}
+		}
+	
+		
+							
+		frappe.call({
+			method:"frappe.client.get_list",
+			args:{"doctype": "Restaurant Table Temp","order_by":"name asc", "fields":["mesa","name"] },
+			async: false,
+			callback: function(r) {	
+				let ocupada = {};
+				for(var tab in r.message ){
+					ocupada = r.message[tab];
+					mesas[ocupada.mesa] = ocupada.name;
+					console.log(ocupada);
+					if($("#verMesasOcupadas").length){
+						if(! $( "#mesa-"+ocupada.mesa ).hasClass('mesa-ocupada')){
+							$( "#mesa-"+ocupada.mesa ).addClass('mesa-ocupada');
+						}
+					}
+					
+				}
+				$( "#mesa-"+tablesTotales[0] ).addClass('mesa-seleccionada');
+			}
+		});
+			
+	}
 	console.clear();
+
+	
 	$("#total_total").text("S/.0.00");
 	$("#total_igv").text("S/.0.00");
 	$("#total_subtotal").text("S/.0.00");
@@ -431,6 +480,10 @@ function add_item(values, cambio="no"){
 	$("#total_subtotal").text(  "S/." + parseFloat(itotal - itotaligv).toFixed(2) );
 	
 	
+	mesas[ $('select[data-fieldname="mesarestaurant"]').val() ] = "Restemp-"+$('select[data-fieldname="mesarestaurant"]').val(); 
+	
+
+
 	values.qty = iqty;
 	platos[values.id] = values;
 	extra[values.id] = extras;
@@ -616,7 +669,6 @@ function pagarTodo(){
 			fieldtype: 'Button',
 			click(){
 				doc_temporal.precuenta();
-				window.open('/VentaTicket?c='+doc.name,'_blank');
 			}
 		})
 		complementos.push({
@@ -819,7 +871,14 @@ function limpiar(){
 			$('button[data-dismiss="modal"]').trigger("click");
 			$(".msgprint").html("")
 
-
+			$( "#mesa-"+ocupada.mesa ).removeClass('mesa-ocupada');
+			delete mesas[ $('select[data-fieldname="mesarestaurant"]').val() ]; 
+			//mesas  $('select[data-fieldname="mesarestaurant"]').val()
+			
+			/*
+			ocupada = r.message[tab];
+			mesas[ocupada.mesa] = ocupada.name;
+			*/
 			//location.reload();
 		}
 	})
@@ -1190,8 +1249,10 @@ function generar_comprobante(values,nombreComp){
       
 			frappe.msgprint({message: values.tipo_comprobante+
       ' ha sido emitida con éxito <br/><br/> <a  \
+      onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\',\'no\' )" \
+      class="btn btn btn-sm btn-primary" >Imprimir</a> <a  \
       onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\')" \
-      class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
+      class="btn btn btn-sm btn-primary" >Abrir PDF</a> <br><br> \
       <div id="el_codigoqr"> </div> \
       ',title: values.tipo_comprobante+' emitida', indicator:'green'});
       setTimeout(function(e){
@@ -1235,7 +1296,7 @@ function qr(){
     elementoUrl="Factura";
   }
 }
-function pdf(pdf, tipoC){
+function pdf(pdf, tipoC , dialogo="si"){
 	
   var eltipo="V";
   var elementoUrl="Venta";
@@ -1302,7 +1363,9 @@ function pdf(pdf, tipoC){
 	  }
   	
   }
-  window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
+  if(dialogo == "si"){
+	  window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
+  }
 	
 	console.clear();
 	$("#total_total").text("S/.0.00");

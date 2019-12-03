@@ -36,13 +36,29 @@ body[data-route="caja-del-restaurante"]{
 
 .flex-container > div.item {
     margin: 10px;
-    text-align: center;
-    min-height: 120px;
-    max-height: 120px;
-    padding-top: 10px;
 	border-radius:5px;
 	border: 1px solid #cccccc;
-	width: 22%;
+}
+.mesa-disponible{
+	font-size: 12pt;
+	padding: 8pt;
+	background-color: rgb(239, 239, 239);
+	line-height: unset;
+	border-radius: 3pt;
+	display: flex;
+	margin-right: 5pt;
+	color: inherit;
+	width: 31pt;
+	height: 31pt;
+	margin-bottom: 5pt;
+}
+.mesa-ocupada{
+	background-color: #36414c;
+	color: white;
+}
+.mesa-seleccionada{
+	background-color: #5e64ff;
+	color: white;
 }
 @media print {
   
@@ -120,15 +136,17 @@ body[data-route="caja-del-restaurante"]{
 		<div class="page-content">
 			<div class="workflow-button-area btn-group pull-right hide"></div>
 			<div class="clearfix"></div>
-			<div class="row layout-main">
+			<div class="row layout-main" style="
+			overflow: hidden;
+		">
 				<div class="row" style="
 						padding-left: 15px;
 						padding-right: 15px;
 					">
-					<div class="col-md-3"  style="padding-top: 15px;">
+					<div class="col-md-4"  style="padding-top: 15px;">
 						<div class="control-input-wrapper mesa"></div>
 					</div>
-					<div class="col-md-6"  style="padding-top: 15px;">
+					<div class="col-md-5"  style="padding-top: 15px;">
 						<div class="control-input-wrapper filtrar"></div>
 					</div>
 					<div class="col-md-3"  style="padding-top: 15px; display:none">
@@ -147,7 +165,9 @@ body[data-route="caja-del-restaurante"]{
 							">
 							
 
-							<div class="col-md-4" style="padding-top: 15px; border-top: 1px solid #ccc;border-bottom:1px solid #ccc;">
+							<div class="col-md-4" style="padding-top: 15px; border-top: 1px solid #ccc;border-bottom:1px solid #ccc;
+									max-height: calc( 100vh - 300px );
+									min-height: calc( 100vh - 300px );">
 								<div class="control-input-wrapper customer">
 												
 								</div>
@@ -158,10 +178,11 @@ body[data-route="caja-del-restaurante"]{
 									<div class="title col-md-2 bold" style="font-size: 9pt;font-size: 9pt;">P.T</div>
 								</div>
 								<div class="row" id="menu_items" style="
-    max-height: 410px;
-    overflow-y: auto;
-    overflow-x: hidden;
-">
+										max-height:calc( 100vh - 440px );
+										overflow-y: auto;
+										overflow-x: hidden;
+										min-height:calc( 100vh - 440px );
+									">
 									
 								</div>
 								<div class="col-md-12 " id="total_id" style="padding-top: 15px;">
@@ -181,45 +202,56 @@ body[data-route="caja-del-restaurante"]{
 								    </div>
 								</div>
 							</div>
-							<div class="col-md-8" style="max-height: calc( 100vh - 250px );overflow-y: auto; padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:500px">
+							
+							
+							<div class="col-md-5" style="max-height: calc( 100vh - 250px );overflow-y: auto; padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:calc( 100vh - 250px )">
 								
 								<div class="col-md-12 flex-container all_items">
 									{% for ( var i in restaurantMenu ){ %}
 										
-									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-3"
+									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-12"
 									onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }}, \'{{ window.btoa(restaurantMenu[i].item.item_group) }}\' )" >
 										
-											<span style="
-											min-height: 60px;
-											max-height: 60px;
-											display: block;
-											font-size: 9.5pt;
-											padding-left: 5px;
-											padding-right: 5px;
-										">{{ restaurantMenu[i].item.item_name }}<b style="display:none">{{restaurantMenu[i].item.item_group}}</b></span>
-											<div class="rate" style="
-														max-height: 30px;
-														min-height: 30px;
-														text-align: center;
-														background: #5e64ff;
-														padding-bottom: 5px;
-														padding-top: 5px;
-														font-weight:bold;
-												    position: absolute;
-												    bottom: 0;
-												    left: 0;
-												    width: 100%;
-													color:white;
-												">
-
+											<span style="display: block;font-size: 9.5pt;padding: 10px;     max-width: calc(100% - 100px);">{{ restaurantMenu[i].item.item_name }}<b style="display:none">{{ restaurantMenu[i].item.item_code }} {{restaurantMenu[i].item.item_group}}</b></span>
+											<div class="rate" style="text-align: center;
+											background: #5e64ff;
+											padding-bottom: 5px;
+											padding-top: 5px;font-weight:bold;position: absolute;color:white;
+											right: 0;top: 0;
+											height: 100%;
+											padding: 10px 10px; 
+											min-width: 80px; 
+											width: 80px;
+											border-radius: 0 5px 5px 0;">
 												S/. {{ restaurantMenu[i].menu.rate }}
 											</div>
-
 									</div>
 									{%  } %}
 								</div>
 							</div>
-						</div>
+							<div class="col-md-3" style="padding-top: 15px;
+									border-top: 1px solid #ccc;
+									height: calc( 100vh - 250px );
+									border-left: 1px solid #ccc;
+									max-height: calc( 100vh - 250px );
+									min-height: calc( 100vh - 250px );
+									overflow-y: auto;
+									padding-right: 0;
+									">
+								<div class="ellipsis title-text">
+								<p>Mesas:</p></div>
+							
+							
+								<div class="ellipsis title-text" id="verMesasOcupadas" style="
+									flex-wrap: wrap;
+									display: flex;
+									flex-direction: row;
+								">
+								
+								</div>
+							
+							</div>
+							
 					</div>
 					<div class="page-form row">
 					</div>
