@@ -4,13 +4,13 @@
             <div class="col-md-7 col-sm-8 col-xs-6 page-title">
                 <h1>
 				 <div class="title-image hide hidden-md hidden-lg">      </div>
-				  <div class="ellipsis title-text" id="Titulo">Mesa - res-01</div><!--<span class="indicator indicator-orange orange"> Sin Servir</span>-->
+				  <div class="ellipsis title-text hidden-xs" id="Titulo">Mesa - res-01</div><!--<span class="indicator indicator-orange orange"> Sin Servir</span>-->
 				</h1>
 			</div>
             <div class="text-right col-md-5 col-sm-4 col-xs-6 page-actions" id="page-actions">
-				<span class="page-icon-group hidden-xs hidden-sm" onclick="doc_temporal.print()"><a class="text-muted no-decoration"><i class="fa fa-print"></i></a></span>
-				<button class="btn btn btn-sm "  onclick="limpiar()" ><i class="visible-xs octicon octicon-check"></i><span class="hidden-xs">Limpiar</span></button>
-				 <button class="btn btn btn-sm "   onclick="doc_temporal.precuenta()" ><i class="visible-xs octicon octicon-check"></i><span class="hidden-xs">Pre Cuenta</span></button>
+				<span class="page-icon-group" onclick="doc_temporal.print()"><a class="text-muted no-decoration"><i class="fa fa-print"></i></a></span>
+				<button class="btn btn btn-sm "  onclick="limpiar()" ><i class="visible-xs octicon octicon-trashcan"></i><span class="hidden-xs">Limpiar</span></button>
+				 <button class="btn btn btn-sm "   onclick="doc_temporal.precuenta()" ><span class="visible-xs">Pre</span><span class="hidden-xs">Pre Cuenta</span></button>
 				<button class="btn btn-primary btn-sm primary-action" onclick="pagarTodo()"><i class="visible-xs octicon octicon-check"></i><span class="hidden-xs">Cuenta</span></button>
             </div>
         </div>
@@ -61,6 +61,13 @@ body[data-route="caja-del-restaurante"]{
 .mesa-seleccionada{
 	background-color: #5e64ff;
 	color: white;
+}
+
+@media (max-width: 767px)
+{
+	.noprincipal {
+    	display: none;
+	}
 }
 @media print {
   
@@ -141,20 +148,20 @@ body[data-route="caja-del-restaurante"]{
 			<div class="row layout-main" style="
 			overflow: hidden;
 		">
-				<div class="row" style="
+				<div class="row esprincipal" style="
 						padding-left: 15px;
 						padding-right: 15px;
 					">
-					<div class="col-md-4"  style="padding-top: 15px;">
+					<div class="col-md-4 col-xs-3"  style="padding-top: 15px;">
 						<div class="control-input-wrapper mesa"></div>
 					</div>
-					<div class="col-md-5"  style="padding-top: 15px;">
+					<div class="col-md-5 col-xs-6"  style="padding-top: 15px;">
 						<div class="control-input-wrapper filtrar"></div>
 					</div>
 					<div class="col-md-3"  style="padding-top: 15px; display:none">
 						<div class="control-input-wrapper filter"></div>
 					</div>
-					<div class="col-md-3"  style="padding-top: 15px; ">
+					<div class="col-md-3 col-xs-3"  style="padding-top: 15px; ">
 						<div class="control-input-wrapper group">	</div>
 					</div>
 				</div>
@@ -167,17 +174,17 @@ body[data-route="caja-del-restaurante"]{
 							">
 							
 
-							<div class="col-md-4" style="padding-top: 15px; border-top: 1px solid #ccc;border-bottom:1px solid #ccc;
+							<div class="col-md-4 noprincipal" style="padding-top: 15px; border-top: 1px solid #ccc;border-bottom:1px solid #ccc;
 									max-height: calc( 100vh - 300px );
 									min-height: calc( 100vh - 300px );">
 								<div class="control-input-wrapper customer">
 												
 								</div>
 								<div class="row">
-									<div class="title col-md-6 text-center bold" style="font-size: 9pt;font-size: 9pt;" >Item</div>
-									<div class="title col-md-2 bold" style="font-size: 9pt;font-size: 9pt;">Cant</div>
-									<div class="title col-md-2 text-right bold" style="font-size: 9pt;font-size: 9pt;">P.U</div>
-									<div class="title col-md-2 bold" style="font-size: 9pt;font-size: 9pt;">P.T</div>
+									<div class="title col-md-6 col-xs-10 text-center bold" style="font-size: 9pt;font-size: 9pt;" >Item</div>
+									<div class="title col-md-2 col-xs-2 bold" style="font-size: 9pt;font-size: 9pt;">Cant</div>
+									<div class="title col-md-2 hidden-xs text-right bold" style="font-size: 9pt;font-size: 9pt;">P.U</div>
+									<div class="title col-md-2 hidden-xs bold" style="font-size: 9pt;font-size: 9pt;">P.T</div>
 								</div>
 								<div class="row" id="menu_items" style="
 										max-height:calc( 100vh - 440px );
@@ -187,31 +194,31 @@ body[data-route="caja-del-restaurante"]{
 									">
 									
 								</div>
-								<div class="col-md-12 " id="total_id" style="padding-top: 15px;">
+								<div class="col-md-12" id="total_id" style="padding-top: 15px;">
 								    <div class="row" style="border-bottom: 1px solid #ddd; padding-bottom:7px">
 								        <div class="row">
-								            <div class="title col-md-3" ></div>
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" >igv</div>
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" >Subtotal</div>
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" >total</div>
+								            <div class="title col-md-3  col-xs-3 " ></div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >igv</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >Subtotal</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >total</div>
 								        </div>
 								        <div class="row">
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" >Total</div>
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" id="total_igv">S/.0.00</div>
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" id="total_subtotal">S/.0.00</div>
-								            <div class="title col-md-3" style="font-size: 9pt;font-size: 9pt;" id="total_total">S/.0.00</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >Total</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" id="total_igv">S/.0.00</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" id="total_subtotal">S/.0.00</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" id="total_total">S/.0.00</div>
 								        </div>
 								    </div>
 								</div>
 							</div>
 							
 							
-							<div class="col-md-5" style="max-height: calc( 100vh - 250px );overflow-y: auto; padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:calc( 100vh - 250px )">
+							<div class="col-md-5 esprincipal" style="max-height: calc( 100vh - 250px );overflow-y: auto; padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:calc( 100vh - 250px )">
 								
 								<div class="col-md-12 flex-container all_items">
 									{% for ( var i in restaurantMenu ){ %}
 										
-									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-12"
+									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-12" style="width: 100%;"
 									onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }}, \'{{ window.btoa(restaurantMenu[i].item.item_group) }}\' )" >
 										
 											<span style="display: block;font-size: 9.5pt;padding: 10px;     max-width: calc(100% - 100px);">{{ restaurantMenu[i].item.item_name }}<b style="display:none">{{ restaurantMenu[i].item.item_code }} {{restaurantMenu[i].item.item_group}}</b></span>
@@ -231,7 +238,7 @@ body[data-route="caja-del-restaurante"]{
 									{%  } %}
 								</div>
 							</div>
-							<div class="col-md-3" style="padding-top: 15px;
+							<div class="col-md-3 hidden-xs" style="padding-top: 15px;
 									border-top: 1px solid #ccc;
 									height: calc( 100vh - 250px );
 									border-left: 1px solid #ccc;

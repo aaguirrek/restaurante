@@ -1386,3 +1386,8 @@ function pdf(pdf, tipoC , dialogo="si"){
 
 
 }
+
+$(".toggle-sidebar").click(function(e){
+	$(".esprincipal").toggle();
+	$(".noprincipal").toggle();
+});
