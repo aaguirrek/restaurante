@@ -29,6 +29,7 @@ frappe.realtime.on('list_update', data => {
                     name: name
                 },
                 async: true,
+                freeze:1,
                 callback: function(r) { 
                     if( $('select[data-fieldname="mesarestaurant"]').val() == r.message.mesa ){
                         
@@ -74,7 +75,7 @@ frappe.realtime.on('list_update', data => {
             freeze:1,
             callback: function(r) {	
                 ocupada = {};
-                $( "#mesa-"+ocupada.mesa ).removeClass('mesa-ocupada');
+                $( ".mesa-disponible" ).removeClass('mesa-ocupada');
                 for(var tab in r.message ){
                     ocupada = r.message[tab];
                     mesas[ocupada.mesa] = ocupada.name;

@@ -223,7 +223,7 @@ function change_mesa(mesa=""){
 		freeze:1,
 		callback: function(r) {	
 			ocupada = {};
-			$( "#mesa-"+ocupada.mesa ).removeClass('mesa-ocupada');
+			$( ".mesa-disponible" ).removeClass('mesa-ocupada');
 			for(var tab in r.message ){
 				ocupada = r.message[tab];
 				mesas[ocupada.mesa] = ocupada.name;
@@ -252,7 +252,8 @@ function change_mesa(mesa=""){
 		args: {
 			restaurant_table: mesa
 		},
-		async: true,
+		async: false,
+		freeze:1,
 		callback: function(r) {
 			inicial = r.message;
 			$("#Titulo").html("Mesa - "+ inicial.mesa.name);
