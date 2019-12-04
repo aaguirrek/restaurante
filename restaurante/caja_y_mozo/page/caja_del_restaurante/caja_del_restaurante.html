@@ -7,11 +7,18 @@
 				  <div class="ellipsis title-text hidden-xs" id="Titulo">Mesa - res-01</div><!--<span class="indicator indicator-orange orange"> Sin Servir</span>-->
 				</h1>
 			</div>
-            <div class="text-right col-md-5 col-sm-4 col-xs-6 page-actions" id="page-actions">
-				<span class="page-icon-group" onclick="doc_temporal.print()"><a class="text-muted no-decoration"><i class="fa fa-print"></i></a></span>
-				<button class="btn btn btn-sm "  onclick="limpiar()" ><i class="visible-xs octicon octicon-trashcan"></i><span class="hidden-xs">Limpiar</span></button>
-				 <button class="btn btn btn-sm "   onclick="doc_temporal.precuenta()" ><span class="visible-xs">Pre</span><span class="hidden-xs">Pre Cuenta</span></button>
-				<button class="btn btn-primary btn-sm primary-action" onclick="pagarTodo()"><i class="visible-xs octicon octicon-check"></i><span class="hidden-xs">Cuenta</span></button>
+            <div class="text-right col-md-5 col-sm-4 col-xs-12 page-actions" id="page-actions">
+				
+				
+				
+				
+				<span class="page-icon-group hidden-xs hidden-sm" onclick="doc_temporal.print()" ><a class="text-muted no-decoration"><i class="fa fa-print"></i></a></span>
+				<button class="btn btn-primary btn-sm primary-action hidden-md hidden-lg" onclick="togleInformacion()" style="display:inline-block">Ver</button>
+				<button class="btn btn btn-sm"  onclick="limpiar()">Limpiar</span></button>
+				<button class="btn btn btn-sm hidden-md hidden-lg"  onclick="doc_temporal.print()" style="display:inline-block">Imprimir</button>
+				<button class="btn btn btn-sm"  onclick="doc_temporal.precuenta()" ><span>Pre Cuenta</span></button>
+				<button class="btn btn-primary btn-sm primary-action" onclick="pagarTodo()"><span>Cuenta</span></button>
+				
             </div>
         </div>
 		
@@ -152,16 +159,16 @@ body[data-route="caja-del-restaurante"]{
 						padding-left: 15px;
 						padding-right: 15px;
 					">
-					<div class="col-md-4 col-xs-3"  style="padding-top: 15px;">
+					<div class="col-md-4 col-xs-6"  style="padding-top: 15px;">
 						<div class="control-input-wrapper mesa"></div>
 					</div>
-					<div class="col-md-5 col-xs-6"  style="padding-top: 15px;">
+					<div class="col-md-5 hidden-xs"  style="padding-top: 15px;">
 						<div class="control-input-wrapper filtrar"></div>
 					</div>
 					<div class="col-md-3"  style="padding-top: 15px; display:none">
 						<div class="control-input-wrapper filter"></div>
 					</div>
-					<div class="col-md-3 col-xs-3"  style="padding-top: 15px; ">
+					<div class="col-md-3 col-xs-6"  style="padding-top: 15px; ">
 						<div class="control-input-wrapper group">	</div>
 					</div>
 				</div>

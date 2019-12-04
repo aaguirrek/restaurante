@@ -26,7 +26,8 @@ app_license = "OLP"
 page_js = {
     "caja-del-restaurante" : [
         "public/js/caja/temporal.js",
-        "public/js/caja/items.js"
+        "public/js/caja/items.js",
+        "public/js/caja/socket.js"
     ],
     "cocina" : [
         "public/js/cocina/cocina.js",

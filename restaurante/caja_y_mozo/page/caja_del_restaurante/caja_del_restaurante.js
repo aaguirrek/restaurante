@@ -22,7 +22,7 @@ var temptopping={};
 var FiltrosTotales=[];
 var all_filtros ={};
 var directo=0;
-
+var ocupada={};
 var mesas={};
 
 var normalize = (function() {
@@ -181,7 +181,6 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	
     setTimeout(initFiltros,100);
 }
-
 function initFiltros(){
 	if($('input[data-fieldname="filtros"]').val() !== undefined){
 			$('input[data-fieldname="filtros"]').keyup(function(){
@@ -193,7 +192,6 @@ function initFiltros(){
 	
 	}
 }
-
 function change_mesa(mesa=""){
 
 	if($(".mesa-disponible").length ){
@@ -201,10 +199,9 @@ function change_mesa(mesa=""){
 		$( "#mesa-"+mesa ).addClass('mesa-seleccionada');
 	}
 
-
 	if (Object.entries(mesas).length === 0 && mesas.constructor === Object){
 		
-		let ocupada = {};
+		ocupada = {};
 		$("#verMesasOcupadas").html("");
 		for(var tab in all_tables ){
 			ocupada = all_tables[tab].name;
@@ -214,31 +211,32 @@ function change_mesa(mesa=""){
 				'</div>');
 			}
 		}
-	
 		
-							
-		frappe.call({
-			method:"frappe.client.get_list",
-			args:{"doctype": "Restaurant Table Temp","order_by":"name asc", "fields":["mesa","name"] },
-			async: false,
-			callback: function(r) {	
-				let ocupada = {};
-				for(var tab in r.message ){
-					ocupada = r.message[tab];
-					mesas[ocupada.mesa] = ocupada.name;
-					console.log(ocupada);
-					if($("#verMesasOcupadas").length){
-						if(! $( "#mesa-"+ocupada.mesa ).hasClass('mesa-ocupada')){
-							$( "#mesa-"+ocupada.mesa ).addClass('mesa-ocupada');
-						}
-					}
-					
-				}
-				$( "#mesa-"+tablesTotales[0] ).addClass('mesa-seleccionada');
-			}
-		});
-			
+		$( "#mesa-"+tablesTotales[0] ).addClass('mesa-seleccionada');
+				
 	}
+						
+	frappe.call({
+		method:"frappe.client.get_list",
+		args:{"doctype": "Restaurant Table Temp","order_by":"name asc", "fields":["mesa","name"] },
+		async: false,
+		freeze:1,
+		callback: function(r) {	
+			ocupada = {};
+			$( "#mesa-"+ocupada.mesa ).removeClass('mesa-ocupada');
+			for(var tab in r.message ){
+				ocupada = r.message[tab];
+				mesas[ocupada.mesa] = ocupada.name;
+				if($("#verMesasOcupadas").length){
+					if(! $( "#mesa-"+ocupada.mesa ).hasClass('mesa-ocupada')){
+						$( "#mesa-"+ocupada.mesa ).addClass('mesa-ocupada');
+					}
+				}
+				
+			}
+		}
+	});
+	
 	console.clear();
 
 	
@@ -441,6 +439,7 @@ function add_item(values, cambio="no"){
 	idstring += values.comentario;
 	let isservido=0;
 	
+	idstring +="|newunique: "+ new Date().getTime();
 	
 	if("servido" in values){
 		if(values.servido == 1){
@@ -1381,8 +1380,7 @@ function pdf(pdf, tipoC , dialogo="si"){
 
 
 }
-
-$(".toggle-sidebar").click(function(e){
+function togleInformacion(){
 	$(".esprincipal").toggle();
 	$(".noprincipal").toggle();
-});
+}
