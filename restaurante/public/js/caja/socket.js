@@ -1,23 +1,10 @@
 this.doctype = "Restaurant Table Temp";
 frappe.realtime.on('list_update', data => {
-	console.log(data);
 	const { doctype, name } = data;
 	if (doctype !== this.doctype )
 	{
 		return;
     }
-    
-    
-    console.clear();
-
-                        
-    $("#total_total").text("S/.0.00");
-    $("#total_igv").text("S/.0.00");
-    $("#total_subtotal").text("S/.0.00");
-    $("#menu_items").html('');
-    platos = {};
-    extras = {};
-
     
     frappe.db.exists("Restaurant Table Temp", name)
     .then(exists => {
@@ -29,10 +16,17 @@ frappe.realtime.on('list_update', data => {
                     name: name
                 },
                 async: true,
-                freeze:1,
                 callback: function(r) { 
+                    
                     if( $('select[data-fieldname="mesarestaurant"]').val() == r.message.mesa ){
                         
+                              
+                        $("#total_total").text("S/.0.00");
+                        $("#total_igv").text("S/.0.00");
+                        $("#total_subtotal").text("S/.0.00");
+                        $("#menu_items").html('');
+                        platos = {};
+                        extras = {};
     
 
                         fg.set_value( r.message.customer ).then(function(e){
@@ -67,12 +61,22 @@ frappe.realtime.on('list_update', data => {
                 }
                 
             })
-        }else{}
+        }else{
+            if( $('select[data-fieldname="mesarestaurant"]').val() == name.replace("Restemp-", "") ){
+
+                platos = {};
+                extras = {};
+                $("#total_total").text("S/.0.00");
+                $("#total_igv").text("S/.0.00");
+                $("#total_subtotal").text("S/.0.00");
+                $("#menu_items").html('');
+    
+            }
+        }
         frappe.call({
             method:"frappe.client.get_list",
             args:{"doctype": "Restaurant Table Temp","order_by":"name asc", "fields":["mesa","name"] },
             async: true,
-            freeze:1,
             callback: function(r) {	
                 ocupada = {};
                 $( ".mesa-disponible" ).removeClass('mesa-ocupada');
@@ -88,5 +92,17 @@ frappe.realtime.on('list_update', data => {
                 }
             }
         }); 
-    })  		
+    }).catch(function(e){
+        if( $('select[data-fieldname="mesarestaurant"]').val() == name.replace("Restemp-", "") ){
+
+            platos = {};
+            extras = {};
+            $("#total_total").text("S/.0.00");
+            $("#total_igv").text("S/.0.00");
+            $("#total_subtotal").text("S/.0.00");
+            $("#menu_items").html('');
+
+        }
+
+    })	
 });

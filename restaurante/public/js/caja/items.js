@@ -9,10 +9,14 @@ var cur_doc ={
 		      "rate": platos[o].rate
 	      });
 		}
+		let cliente="Anonimo";
+		if( $('input[data-fieldname="customer"]').val() != ""){
+			cliente = $('input[data-fieldname="customer"]').val();
+		}
 		frappe.call({
 			method: "restaurante.caja.sync",
 			args: {
-				customer:$('input[data-fieldname="customer"]').val(),
+				customer:cliente,
 				restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
 				items:elementos
 			},
@@ -34,10 +38,14 @@ var cur_doc ={
 		      "rate": platos[o].rate
 	      });
 		}
+		let cliente="Anonimo";
+		if( $('input[data-fieldname="customer"]').val() != ""){
+			cliente = $('input[data-fieldname="customer"]').val();
+		}
 		frappe.call({
 			method: "restaurante.caja.sync",
 			args: {
-				customer:$('input[data-fieldname="customer"]').val(),
+				customer:cliente,
 				restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
 				items:elementos
 			},

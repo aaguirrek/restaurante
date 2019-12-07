@@ -637,7 +637,7 @@ function plato_servido(values, iditem ){
 function pagarTodo(){
 	var iii=0;
 	
-
+	let cliente = "Anonimo";
 	
 	if ($(".octicon-bell").length > 0){
 		$('.octicon-bell').each(function() {
@@ -684,11 +684,16 @@ function pagarTodo(){
 			  modosPagos = r.message
 		  }
 	  })
+	if($('input[data-fieldname="customer"]').val() != "")
+	{
+		cliente = $('input[data-fieldname="customer"]').val();
+	}
+	
 	frappe.call({
 		  method: "frappe.client.get",
 		  args: {
-			  doctype: "Customer",
-		name: $('input[data-fieldname="customer"]').val()
+			doctype: "Customer",
+			name: cliente
 		  },
 		  async: false,
 		  callback: function(r) {
@@ -816,12 +821,18 @@ function generarVenta(values){
 		}
 	}
 	cur_doc.synced();
+	let cliente="Anonimo";
+	if($('input[data-fieldname="customer"]').val() != "")
+	{
+		cliente = $('input[data-fieldname="customer"]').val();
+	}
+	let restable=$('select[data-fieldname="mesarestaurant"]').val();
 	frappe.call({
 		method: "restaurante.caja.validar",
 		args: {
 			
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			customer:cliente,
+			restaurant_table: restable,
 			items:elementos,
 			payments: payments,
 			tipoComprobante:tipoComprobante
