@@ -24,7 +24,7 @@ var all_filtros ={};
 var directo=0;
 var ocupada={};
 var mesas={};
-
+var first_mesa=0;
 var normalize = (function() {
   var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
       to   = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
@@ -122,7 +122,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			placeholder: "Mesa número"
 		},
 		change: function(frm){
-			change_mesa( $('select[data-fieldname="mesarestaurant"]').val() );
+			change_mesa(fmesa.get_value() );
 		},
 		render_input: true
 	});
@@ -133,7 +133,8 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			fieldtype: "Link",
 			options: "Customer",
 			fieldname: "customer",
-			placeholder: "Cliente"
+			placeholder: "Cliente",
+			default: "Anonimo"
 		},
 		render_input: true
 	});
@@ -194,7 +195,7 @@ function initFiltros(){
 }
 function change_mesa(mesa=""){
 
-	if($(".mesa-disponible").length ){
+	if(first_mesa!=0){
 		$( ".mesa-disponible" ).removeClass('mesa-seleccionada');
 		$( "#mesa-"+mesa ).addClass('mesa-seleccionada');
 	}
@@ -211,8 +212,11 @@ function change_mesa(mesa=""){
 				'</div>');
 			}
 		}
-		
-		$( "#mesa-"+tablesTotales[0] ).addClass('mesa-seleccionada');
+		$( "#mesa-"+mesa ).addClass('mesa-seleccionada');
+		if(first_mesa==0){
+			$( "#mesa-"+tablesTotales[0] ).addClass('mesa-seleccionada');
+			first_mesa=1;
+		}
 				
 	}
 						
@@ -405,7 +409,7 @@ function sendItem (name, rate,item_group){
 	d.show();
 }
 function add_item(values, cambio="no"){
-	//console.log(values)
+
 	let i = 0;
 	
 	values.elements=[];
@@ -475,7 +479,7 @@ function add_item(values, cambio="no"){
 	$("#total_subtotal").text(  "S/." + parseFloat(itotal - itotaligv).toFixed(2) );
 	
 	
-	mesas[ $('select[data-fieldname="mesarestaurant"]').val() ] = "Restemp-"+$('select[data-fieldname="mesarestaurant"]').val(); 
+	mesas[fmesa.get_value() ] = "Restemp-"+$('select[data-fieldname="mesarestaurant"]').val(); 
 	
 
 
@@ -598,8 +602,8 @@ function plato_servido(values, iditem ){
 	let newid = iditem+"|newunique: "+unique
 	newid = window.btoa(newid)
 	newid = newid.replace(/=/g, "_")
-	if($("input[data-fieldname=customer]").val() != ""){
-		cliente = $("input[data-fieldname=customer]").val()
+	if( fg.get_value() != ""){
+		cliente = fg.get_value();
 	}
 	
 	for( let i in values ){
@@ -684,9 +688,9 @@ function pagarTodo(){
 			  modosPagos = r.message
 		  }
 	  })
-	if($('input[data-fieldname="customer"]').val() != "")
+	if( fg.get_value() != "")
 	{
-		cliente = $('input[data-fieldname="customer"]').val();
+		cliente = fg.get_value();
 	}
 	
 	frappe.call({
@@ -695,6 +699,7 @@ function pagarTodo(){
 			doctype: "Customer",
 			name: cliente
 		  },
+		  freeze:1,
 		  async: false,
 		  callback: function(r) {
 			  cliente = r.message
@@ -822,9 +827,9 @@ function generarVenta(values){
 	}
 	cur_doc.synced();
 	let cliente="Anonimo";
-	if($('input[data-fieldname="customer"]').val() != "")
+	if(fg.get_value() != "")
 	{
-		cliente = $('input[data-fieldname="customer"]').val();
+		cliente = fg.get_value();
 	}
 	let restable=$('select[data-fieldname="mesarestaurant"]').val();
 	frappe.call({
@@ -838,7 +843,8 @@ function generarVenta(values){
 			tipoComprobante:tipoComprobante
 			
 		},
-		async: true,
+		async: false,
+		freeze:1,
 		callback: function(r) {
 				generar_comprobante(values,r.message.name);
 		},
@@ -848,9 +854,10 @@ function limpiar(){
 	frappe.call({
 		method: "restaurante.caja.remove_temporal",
 		args: {
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val()
+			restaurant_table:fmesa.get_value()
 		},
-		async: true,
+		freeze:1,
+		async: false,
 		callback: function(r) {
 			$("#total_total").text("S/.0.00");
 			$("#total_igv").text("S/.0.00");
@@ -858,6 +865,7 @@ function limpiar(){
 			$("#menu_items").html('');
 			platos = {};
 			extras = {};
+			extra  = {};
 			frappe.show_alert({
 				message:"mesa limpiada",
 				time:5,
@@ -865,21 +873,16 @@ function limpiar(){
 				
 			});
 
-
-
-			console.clear();
 			$("#total_total").text("S/.0.00");
 			$("#total_igv").text("S/.0.00");
 			$("#total_subtotal").text("S/.0.00");
 			$("#menu_items").html('');
+			extra  = {};
 			platos = {};
 			extras = {};
-			$('button[data-dismiss="modal"]').trigger("click");
-			$(".msgprint").html("")
-
 			$( "#mesa-"+ocupada.mesa ).removeClass('mesa-ocupada');
-			delete mesas[ $('select[data-fieldname="mesarestaurant"]').val() ]; 
-			//mesas  $('select[data-fieldname="mesarestaurant"]').val()
+			delete mesas[fmesa.get_value() ]; 
+			//mesas fmesa.get_value()
 			
 			/*
 			ocupada = r.message[tab];
@@ -918,8 +921,8 @@ function plato_delete(item_name,item){
 	frappe.call({
 		method: "restaurante.caja.sync",
 		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			customer: fg.get_value(),
+			restaurant_table:fmesa.get_value(),
 			items:elementos
 		},
 		async: true,
@@ -943,8 +946,8 @@ function plato_delete(item_name,item){
 	frappe.call({
 		method: "restaurante.caja.saveTemporal",
 		args: {
-			customer:$('input[data-fieldname="customer"]').val(),
-			restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+			customer:fg.get_value(),
+			restaurant_table:fmesa.get_value(),
 			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
 			items: elementos2,
 			igv: parseFloat( $("#total_igv").text().replace("S/.", "") ),
@@ -955,20 +958,10 @@ function plato_delete(item_name,item){
 	});
 }
 function generar_comprobante(values,nombreComp){
-	
-  var eltipo="V";
-  var elementoUrl="Venta";
-  var A4="A4";
-	var settings = {
-		"async": false,
-		"crossDomain": true,
-		"method": "GET",
-		"headers": {
-			"Content-Type": "application/json",
-			"Authorization": "Bearer m5TX5llKHKx3WhIGBqNqX3VLozorFcz7yBxtpAWXGFojX7brWA"
-		},
-		"data": ""
-	}
+  	var eltipo="V";
+  	var elementoUrl="Venta";
+  	var A4="A4";
+	var settings = {"async": false,"crossDomain": true, "method": "GET", "headers": {"Content-Type": "application/json", "Authorization": "Bearer m5TX5llKHKx3WhIGBqNqX3VLozorFcz7yBxtpAWXGFojX7brWA"},"data": ""}
 	
 	var metodo="";
 	if(values.tipo_comprobante === undefined){
@@ -980,28 +973,18 @@ function generar_comprobante(values,nombreComp){
         A4="Ticket"
       }
       
-			frappe.msgprint({message: nombreComp+
+		let frappemsg =	frappe.msgprint({message: nombreComp+
       ' ha sido emitida con éxito <br/><br/> <a  \
       onclick="pdf(\''+nombreComp+'\',\'Venta\')" \
       class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
       <div id="el_codigoqr"> </div> \
       ',
       title: 'Venta Generada', indicator:'green'});
-       setTimeout(function(e){
-			$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp ); 
-			  cur_dialog.onhide = function(e){
-				console.clear();
-				$("#total_total").text("S/.0.00");
-				$("#total_igv").text("S/.0.00");
-				$("#total_subtotal").text("S/.0.00");
-				$("#menu_items").html('');
-				platos = {};
-				extras = {};
-
-			   }
-      },500)
+       setTimeout(function(e){$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp );  },500)
 		
-		return;
+	   return frappemsg.onhide = function(e){ 
+			return limpiar();
+		}
 	}
 	if(values.tipo_comprobante == ""){
       
@@ -1013,30 +996,16 @@ function generar_comprobante(values,nombreComp){
       }
       	
 	  // onclick="pdf(\''+nombreComp+'\',\'Venta\')"
-			frappe.msgprint({message: nombreComp+
-      ' ha sido emitida con éxito <br/><br/> <a  \
-	   href="'+values.pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
-      <div id="el_codigoqr"> </div> \
-      ',
-      title: 'Venta Generada', indicator:'green'});
-       setTimeout(function(e){
-			$('#el_codigoqr').qrcode( values.pdf ); 
-			  cur_dialog.onhide = function(e){ 
-				  
-				console.clear();
-				$("#total_total").text("S/.0.00");
-				$("#total_igv").text("S/.0.00");
-				$("#total_subtotal").text("S/.0.00");
-				$("#menu_items").html('');
-				platos = {};
-				extras = {};
-				limpiar();
-
-			   }
-      },500)
-		//frappe. msgprint({message: 'Su venta ha sido generada',title: 'Venta Generada', indicator:'green'});
-	
-		return;
+	  let frappe_no_text = frappe.msgprint({message: nombreComp+
+			' ha sido emitida con éxito <br/><br/> <a  \
+			href="'+values.pdf+'" class="btn btn btn-sm btn-primary" >Imprimir</a> <br><br> \
+			<div id="el_codigoqr"> </div> \
+			',
+			title: 'Venta Generada', indicator:'green'});
+			setTimeout(function(e){	$('#el_codigoqr').qrcode( values.pdf ); },500)
+		return frappe_no_text.onhide = function(e){ 
+			return limpiar();
+		}
 	}
 	if(values.tipo_comprobante == "Boleta"){
 		metodo="sunat.sunat.doctype.boleta.boleta.Nubefact";
@@ -1253,34 +1222,25 @@ function generar_comprobante(values,nombreComp){
         elementoUrl="Factura";
       }
       
-			frappe.msgprint({message: values.tipo_comprobante+
+		let frappebol = frappe.msgprint({message: values.tipo_comprobante+
       ' ha sido emitida con éxito <br/><br/> <a  \
       onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\',\'no\' )" \
       class="btn btn btn-sm btn-primary" >Imprimir</a> <a  \
       onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\')" \
       class="btn btn btn-sm btn-primary" >Abrir PDF</a> <br><br> \
       <div id="el_codigoqr"> </div> \
-      ',title: values.tipo_comprobante+' emitida', indicator:'green'});
-      setTimeout(function(e){
-			  $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+r.message.name ); 
-        cur_dialog.onhide = function(e){ 	
-			
-			console.clear();
-			$("#total_total").text("S/.0.00");
-			$("#total_igv").text("S/.0.00");
-			$("#total_subtotal").text("S/.0.00");
-			$("#menu_items").html('');
-			platos = {};
-			extras = {};
-			limpiar();
-
-		 }
-      },500)
-      
-      
+	  ',title: values.tipo_comprobante+' emitida', indicator:'green'});
+	  
+	  
+ 
+      	setTimeout(function(e){ $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+r.message.name );  },500)
+	
+		return frappebol.onhide = function(e){ 
+			return limpiar();
+		}
+		
 		}
 	});
-	
 	
 }
 function qr(){
@@ -1325,14 +1285,15 @@ function pdf(pdf, tipoC , dialogo="si"){
         async: true,
         callback: function(rep) {
 			rep.web_seting = frappe.boot.website_settings;
+			rep.mesa = fmesa.get_value();
 			rep.sunat = sunat_setup;
 			rep.tipo = "Boleta";
 			printer.emit("print-socket",JSON.stringify(rep));
         }
-    	});
+	});
     
   }else{
-	  if(tipoC == "Factura"){
+	if(tipoC == "Factura"){
 	    eltipo="F";
 	    elementoUrl="Factura";
 	    frappe.call({
@@ -1345,10 +1306,11 @@ function pdf(pdf, tipoC , dialogo="si"){
         callback: function(rep) {
 			rep.web_seting = frappe.boot.website_settings;
 			rep.sunat = sunat_setup;
+			rep.mesa = fmesa.get_value();
 			rep.tipo = "Factura";
 			printer.emit("print-socket",JSON.stringify(rep));
         }
-    	});
+    });
     	
 	  }else{
 	  	frappe.call({
@@ -1361,6 +1323,7 @@ function pdf(pdf, tipoC , dialogo="si"){
         callback: function(rep) {
 			rep.web_seting = frappe.boot.website_settings;
 			rep.sunat = sunat_setup;
+			rep.mesa = fmesa.get_value();
 			rep.tipo = "Sales Invoice";
 			printer.emit("print-socket",JSON.stringify(rep));
         }
@@ -1373,16 +1336,8 @@ function pdf(pdf, tipoC , dialogo="si"){
 	  window.open(frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+pdf+"",'_blank');
   }
 	
-	console.clear();
-	$("#total_total").text("S/.0.00");
-	$("#total_igv").text("S/.0.00");
-	$("#total_subtotal").text("S/.0.00");
-	$("#menu_items").html('');
-	platos = {};
-	extras = {};
 	$('button[data-dismiss="modal"]').trigger("click");
-	$(".msgprint").html("")
-	limpiar();
+	
 	frappe.show_alert({
 		message:"mesa limpiada",
 		time:5,

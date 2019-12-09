@@ -13,6 +13,7 @@
 				
 				
 				<span class="page-icon-group hidden-xs hidden-sm" onclick="doc_temporal.print()" ><a class="text-muted no-decoration"><i class="fa fa-print"></i></a></span>
+				<a class="btn btn btn-sm btn-primary hidden-xs hidden-sm" href="#Form/Restaurant%20Menu/{{restaurantMenu[0].name}}">Editar Menu</a>
 				<button class="btn btn-primary btn-sm primary-action hidden-md hidden-lg" onclick="togleInformacion()" style="display:inline-block">Ver</button>
 				<button class="btn btn btn-sm"  onclick="limpiar()">Limpiar</span></button>
 				<button class="btn btn btn-sm hidden-md hidden-lg"  onclick="doc_temporal.print()" style="display:inline-block">Imprimir</button>
@@ -201,16 +202,18 @@ body[data-route="caja-del-restaurante"]{
 									">
 									
 								</div>
-								<div class="col-md-12" id="total_id" style="padding-top: 15px;">
-								    <div class="row" style="border-bottom: 1px solid #ddd; padding-bottom:7px">
-								        <div class="row">
+								<div class="col-md-12" id="total_id">
+								    <div class="row" style=" font-weight: 500;">
+								        <div class="row" style="
+										margin-top: 10px;
+									">
 								            <div class="title col-md-3  col-xs-3 " ></div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >igv</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >Subtotal</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >total</div>
 								        </div>
 								        <div class="row">
-								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" >Total</div>
+								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt; font-weight: 500;" >Total</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" id="total_igv">S/.0.00</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" id="total_subtotal">S/.0.00</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt;font-size: 9pt;" id="total_total">S/.0.00</div>
@@ -222,7 +225,7 @@ body[data-route="caja-del-restaurante"]{
 							
 							<div class="col-md-5 esprincipal" style="max-height: calc( 100vh - 220px );overflow-y: auto; padding-top: 15px; border-top: 1px solid #ccc; border-left:1px solid #ccc;min-height:calc( 100vh - 220px )">
 								
-								<div class="col-md-12 flex-container all_items">
+								<div class="col-md-12 flex-container all_items" id="carta_activa_del_menu" >
 									{% for ( var i in restaurantMenu ){ %}
 										
 									<div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-12" style="width: 100%;"
@@ -268,8 +271,6 @@ body[data-route="caja-del-restaurante"]{
 							
 							</div>
 							
-					</div>
-					<div class="page-form row">
 					</div>
 				</div>
 			</div>

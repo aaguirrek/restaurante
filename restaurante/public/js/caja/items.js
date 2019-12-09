@@ -10,17 +10,17 @@ var cur_doc ={
 	      });
 		}
 		let cliente="Anonimo";
-		if( $('input[data-fieldname="customer"]').val() != ""){
-			cliente = $('input[data-fieldname="customer"]').val();
+		if( fg.get_value() != ""){
+			cliente = fg.get_value();
 		}
 		frappe.call({
 			method: "restaurante.caja.sync",
 			args: {
 				customer:cliente,
-				restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+				restaurant_table:fmesa.get_value(),
 				items:elementos
 			},
-			async: true,
+			async: false,
 			callback: function(r) {
 				if(r.message == "no encontrado"){
 					$("#"+values.id+"_href").hide()
@@ -39,14 +39,14 @@ var cur_doc ={
 	      });
 		}
 		let cliente="Anonimo";
-		if( $('input[data-fieldname="customer"]').val() != ""){
-			cliente = $('input[data-fieldname="customer"]').val();
+		if( fg.get_value() !== ""){
+			cliente = fg.get_value();
 		}
 		frappe.call({
 			method: "restaurante.caja.sync",
 			args: {
 				customer:cliente,
-				restaurant_table: $('select[data-fieldname="mesarestaurant"]').val(),
+				restaurant_table:fmesa.get_value(),
 				items:elementos
 			},
 			async: false,

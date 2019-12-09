@@ -19,19 +19,25 @@ frappe.realtime.on('list_update', data => {
                 callback: function(r) { 
                     
                     if( $('select[data-fieldname="mesarestaurant"]').val() == r.message.mesa ){
-                        
-                              
-                        $("#total_total").text("S/.0.00");
+                        let itemsL=0;
+                        for(var wq in platos){
+                            itemsL++;
+                        }
+                        /*$("#total_total").text("S/.0.00");
                         $("#total_igv").text("S/.0.00");
                         $("#total_subtotal").text("S/.0.00");
                         $("#menu_items").html('');
                         platos = {};
                         extras = {};
-    
-
+                        */
+                       
                         fg.set_value( r.message.customer ).then(function(e){
                             let item_values = {};
-                            for(var w in r.message.items){
+                            let w = itemsL;
+                            let mesi = r.message.items.length ;
+                            
+                            for( w ; w < mesi ; w++ ){
+                               
                                 item_values = {};
                                 var ld= r.message.items[w];
                                 ld.extra = JSON.parse(ld.extra);
@@ -106,3 +112,28 @@ frappe.realtime.on('list_update', data => {
 
     })	
 });
+
+
+frappe.realtime.on('list_update', data => {
+    
+    const { doctype, name } = data;
+    
+	if (doctype !== "Restaurant Menu" )
+	{
+		return;
+    }
+    
+    var restaurantMenu = null;
+    
+	frappe.call({
+        method:"restaurante.caja_y_mozo.page.caja_del_restaurante.caja_del_restaurante.get_menu", 
+        async:true,
+        freeze:1,
+        args:{restaurante:"greena" }, 
+        callback:function(res){
+            restaurantMenu =res.message 
+            $("#carta_activa_del_menu").html( frappe.render_template("menu_item", { restaurantMenu:restaurantMenu } ) );
+        }});
+    
+});
+

@@ -18,6 +18,7 @@ def get_menu(restaurante=""):
     for menuitem in menu.items:
         itemel = frappe.get_doc("Item", menuitem.item )
         res = {}
+        res['name'] = menu.name
         res['item'] = itemel
         res['menu'] = menuitem
         itemsel.append( res )
