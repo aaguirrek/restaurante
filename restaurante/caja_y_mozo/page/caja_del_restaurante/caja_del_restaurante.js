@@ -515,10 +515,8 @@ function plato_preparado(name,el){
 	id = id.replace(/_/g,"=")
 	id = window.atob( id )
 	let complementos=[];
-	let ingredientes=null
-	console.log(id)
-	//Coco Bowl Fresa|Topping Granola Clásica|Topping Arándanos|Topping Chía|
-	var str1 = id
+	let ingredientes=null;
+	var str1 = id;
 	str1 = str1.split("|");
 	str1.pop();
 	str1.shift();
@@ -645,12 +643,10 @@ function pagarTodo(){
 	
 	if ($(".octicon-bell").length > 0){
 		$('.octicon-bell').each(function() {
-			console.log(this)
 			
 			if( $(this).css("display") != "none"  &&  $(this).parent().css("display") != "none" ){
 				if( $(this).css("color") == "#98d85b" || $(this).css("color") == "rgb(152, 216, 91)" ){
 					iii++;
-					console.log("suma")
 				}else{}
 			}
 		});

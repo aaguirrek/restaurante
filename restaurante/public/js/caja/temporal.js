@@ -101,7 +101,6 @@ function exportar_pdf(tipo){
 	rep.sunat = sunat_setup;
 	rep.tipo = tipo;
 	rep.mesa =fmesa.get_value();
-	console.log(rep);
 	printer.emit("print-socket",JSON.stringify(rep));
 	
 	cur_doc.sync();
