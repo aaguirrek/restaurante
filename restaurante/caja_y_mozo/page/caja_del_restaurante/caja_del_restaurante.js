@@ -270,7 +270,9 @@ function change_mesa(mesa=""){
 							var ld= inicial.data.items[w];
 							ld.extra = JSON.parse(ld.extra);
 							item_values.itemname = ld.item;
-							//item_values.item_group = ld.item;
+							try{
+								item_values.item_group = ld.item_group;
+							}catch(e){}
 							item_values.comentario = ld.extra.comentario;
 							item_values.qty = ld.qty;
 							item_values.rate = ld.rate;

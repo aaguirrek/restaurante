@@ -173,6 +173,7 @@ def saveTemporal(restaurant_table, items,total,subtotal,igv, customer="Anonimo")
       "item": item["name"],
       "qty": item["qty"],
       "rate": item["rate"],
+      "item_group": item["item_group"],
       "extra": extras,
       "servido": servido,
       "tipo": tipo,
