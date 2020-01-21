@@ -14,7 +14,8 @@ var doc_temporal = {
         		    "extras": extra[o],
         		    "servido": 1,
         		    "tipo": "Directo",
-                    "imprimido":imprimi
+                    "imprimido":imprimi,
+        	        "item_group": platos[o].item_group
                 });
 		    }else{
                 elementos2.push({
@@ -24,7 +25,8 @@ var doc_temporal = {
                     "extras": extra[o],
                     "servido": 0,
                     "tipo": "Directo",
-        		    "imprimido":imprimi
+					"imprimido":imprimi,
+					"item_group": platos[o].item_group
                 });
 		    }
     	}

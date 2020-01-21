@@ -270,6 +270,7 @@ function change_mesa(mesa=""){
 							var ld= inicial.data.items[w];
 							ld.extra = JSON.parse(ld.extra);
 							item_values.itemname = ld.item;
+							//item_values.item_group = ld.item;
 							item_values.comentario = ld.extra.comentario;
 							item_values.qty = ld.qty;
 							item_values.rate = ld.rate;
@@ -378,6 +379,14 @@ function sendItem (name, rate,item_group){
 		hidden:1,
 		default: name
 	});
+	complementos.push({
+		label:"Grupo del producto",
+		fieldname:"item_group",
+		fieldtype:"Data",
+		hidden:1,
+		default: item_group
+	});
+	
 	complementos.push({
 		label:"Precio del Producto",
 		fieldname:"rate",
@@ -760,6 +769,7 @@ function pagarTodo(){
 		  label:"Ruc/Dni",
 		  fieldname:"numero_doc",
 		  fieldtype:"Data",
+		  read_only:1,
 		  default: cliente.tax_id
 	  })
 	  complementos.push({
