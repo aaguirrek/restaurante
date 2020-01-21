@@ -948,7 +948,8 @@ function plato_delete(item_name,item){
 	      "rate": platos[o].rate,
 		  "extras": extra[o],
 		  "servido": 0,
-		  "tipo": "Directo"
+		  "tipo": "Directo",
+		  "item_group": platos[o].item_group
       })
 	}
 	frappe.call({

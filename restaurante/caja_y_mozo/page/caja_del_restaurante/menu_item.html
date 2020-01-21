@@ -3,17 +3,8 @@
 <div class="item {{restaurantMenu[i].item.item_group}} {{restaurantMenu[i].item.name}} col-md-12" style="width: 100%;"
 onclick = "sendItem( \'{{ window.btoa(restaurantMenu[i].item.name) }}\', {{ restaurantMenu[i].menu.rate }}, \'{{ window.btoa(restaurantMenu[i].item.item_group) }}\' )" >
     
-        <span style="display: block;font-size: 9.5pt;padding: 10px; max-width: calc(100% - 100px);">{{ restaurantMenu[i].item.item_name }}<b style="display:none">{{ restaurantMenu[i].item.item_code }} {{restaurantMenu[i].item.item_group}}</b></span>
-        <div class="rate" style="text-align: center;
-        background: #5e64ff;
-        padding-bottom: 5px;
-        padding-top: 5px;font-weight:bold;position: absolute;color:white;
-        right: 0;top: 0;
-        height: 100%;
-        padding: 10px 10px; 
-        min-width: 80px; 
-        width: 80px;
-        border-radius: 0 5px 5px 0;">
+        <span class="rate item_menu_span">{{ restaurantMenu[i].item.item_name }}<b style="display:none">{{ restaurantMenu[i].item.item_code }} {{restaurantMenu[i].item.item_group}}</b></span>
+        <div class="rate item_menu_rate">
             S/. {{ restaurantMenu[i].menu.rate }}
         </div>
 </div>

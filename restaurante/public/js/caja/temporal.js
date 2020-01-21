@@ -29,11 +29,16 @@ var doc_temporal = {
 					"item_group": platos[o].item_group
                 });
 		    }
-    	}
+		}
+		
+		let cliente="Anonimo";
+		if( fg.get_value() != ""){
+			cliente = fg.get_value();
+		}
     	frappe.call({
     		method: "restaurante.caja.saveTemporal",
     		args: {
-    			customer:$('input[data-fieldname="customer"]').val(),
+    			customer: cliente,
     			restaurant_table:fmesa.get_value(),
     			total: parseFloat( $("#total_total").text().replace("S/.", "") ),
     			items: elementos2,
@@ -75,6 +80,7 @@ function exportar_pdf(tipo){
 		if(platos[it].imprimido== 0 || tipo == "Pre Cuenta"){
 			message.items.push({
 				item_name: platos[it].itemname,
+				item_group: platos[it].item_group,
 				qty: platos[it].qty,
 				extras:platos[it].elements,
 				rate:platos[it].rate,

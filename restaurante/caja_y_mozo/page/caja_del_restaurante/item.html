@@ -9,11 +9,11 @@
 {% } %}
     <div class="row" style="padding-bottom:7px;font-weight: 500;">
         <div class="row">
-            <div class="title col-md-1 col-xs-2">
-                <a onclick="plato_delete( \'{{values.itemname}}\' , this )" id="{{values.id}}_delete" class="vdel" ><i class=" octicon octicon-circle-slash" style="color:#ff5858"></i></a>
+            <div class="title col-md-1 col-xs-2" style="padding-left: 30px;">
+                <a onclick="plato_delete( \'{{values.itemname}}\' , this )" id="{{values.id}}_delete" class="vdel" ><i class=" octicon octicon-circle-slash" style="color:#f1556c"></i></a>
             </div>
-            <div class="title col-md-5 col-xs-8" style="font-size: 9pt;">{{values.itemname}}</div>
-            <div class="title col-md-2 col-xs-2" style="padding-left: 3px;padding-right: 3px;font-size: 9pt;">
+            <div class="title col-md-5 col-xs-8" style="font-size: 10.5pt;color: #232323;" >{{values.itemname}}</div>
+            <div class="title col-md-2 col-xs-2" style="padding-left: 3px;padding-right: 3px;font-size: 11pt; font-weight: 500; text-align: center;">
                 <span id="{{values.id}}_qty" class="vqty">{{values.qty}}</span>
             </div>
             <div class="title col-md-1 vlito hidden-xs">
@@ -22,20 +22,20 @@
                         <a id="{{values.id}}_href"><i class="octicon octicon-bell" style="color:#dcdcdc"></i></a>
                 {% }else{ %}
                         <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" >
-                            <i class="octicon octicon-bell" style="color:#98d85b"></i>
+                            <i class="octicon octicon-bell" style="color:#1abc9c"></i>
                         </a>
                 {% } %}
                 {% }else{ %}
                     <a onclick="plato_preparado(  \'{{values.itemname}}\' , this )" id="{{values.id}}_href" >
-                        <i class="octicon octicon-bell" style="color:#98d85b"></i>
+                        <i class="octicon octicon-bell" style="color:#1abc9c"></i>
                     </a>
                 {% } %}
             </div>
-            <div class="title col-md-1 hidden-xs vrate">{{values.rate}}</div>
-            <div class="title col-md-2 hidden-xs vtotal" id="{{values.id}}_rate" data-tipo="rate">{{ parseFloat(values.rate) * parseFloat(values.qty) }}</div>
+            <div class="title col-md-1 hidden-xs vrate" style="font-size: 11pt; font-weight: 500; text-align: center;">{{values.rate}}</div>
+            <div class="title col-md-2 hidden-xs vtotal" id="{{values.id}}_rate" data-tipo="rate" style="font-size: 11pt; font-weight: 500; text-align: center;">{{ parseFloat(values.rate) * parseFloat(values.qty) }}</div>
         </div>
         <div class="row">
-            <div class="col-md-12 col-xs-12" style="color:#ccc;font-size:8.5pt;
+            <div class="col-md-12 col-xs-12" style="color:#6c757d;font-size:9pt;
             padding-left: 20pt;
             padding-right: 20pt;">
             {%  for( var e in values.elements   ){   %}
