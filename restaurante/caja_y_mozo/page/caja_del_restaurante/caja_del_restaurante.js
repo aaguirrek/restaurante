@@ -893,13 +893,13 @@ function plato_delete(item_name,item){
 	elid = item.id;
 	elid = elid.replace("_delete","");
 	let itot= parseFloat( $("#total_total").text().replace("S/.", "") );
-	itot = itot - ( platos[elid].qty + platos[elid].rate );
-	let iigv= parseFloat( parseFloat( ( itot * 100 )/ ( 100 + sunat_setup.igv ) ).toFixed(2) );
+	itot = itot - ( platos[elid].qty * platos[elid].rate );
+	let iigv=  itot - ( parseFloat( parseFloat( ( itot * 100 ) / ( 100 + sunat_setup.igv ) ).toFixed(2) ) );
 	let subt= itot - iigv;
 
-	$("#total_total").text("S/." + itot );
-	$("#total_subtotal").text("S/." + subt);
-	$("#total_igv").text("S/." + iigv );
+	$("#total_total").html("S/." + itot.toFixed(2) );
+	$("#total_subtotal").html("S/." + subt.toFixed(2)  );
+	$("#total_igv").html("S/." + iigv.toFixed(2) );
 
 	delete platos[elid];
 	delete extra[elid];
