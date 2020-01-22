@@ -8,10 +8,6 @@
 				</h1>
 			</div>
             <div class="text-right col-md-5 col-sm-4 col-xs-12 page-actions" id="page-actions">
-				
-				
-				
-				
 				<span class="page-icon-group hidden-xs hidden-sm" onclick="doc_temporal.print()" ><a class="text-muted no-decoration"><i class="fa fa-print"></i></a></span>
 				<a class="btn btn btn-sm btn-primary hidden-xs hidden-sm" href="#Form/Restaurant%20Menu/{{restaurantMenu[0].name}}">Editar Menu</a>
 				<button class="btn btn-primary btn-sm primary-action hidden-md hidden-lg" onclick="togleInformacion()" style="display:inline-block">Ver</button>
@@ -19,7 +15,6 @@
 				<button class="btn btn btn-sm hidden-md hidden-lg"  onclick="doc_temporal.print()" style="display:inline-block">Imprimir</button>
 				<button class="btn btn btn-sm"  onclick="doc_temporal.precuenta()" ><span>Pre Cuenta</span></button>
 				<button class="btn btn-primary btn-sm primary-action" onclick="pagarTodo()"><span>Cuenta</span></button>
-				
             </div>
         </div>
 		
@@ -32,7 +27,7 @@ body[data-route="caja-del-restaurante"]{
 	max-height: 100vh;
     overflow: hidden;
 }
-.item_menu_span{
+#page-caja-del-restaurante .item_menu_span{
 	display: block;
 	font-size: 11pt;
 	padding: 10px;
@@ -45,7 +40,7 @@ body[data-route="caja-del-restaurante"]{
     color: white;
     font-weight: 500;
 }
-.item_menu_rate {
+#page-caja-del-restaurante .item_menu_rate {
     text-align: center;
     background: #6658dd;
     padding-bottom: 5px;
@@ -62,23 +57,23 @@ body[data-route="caja-del-restaurante"]{
     width: 80px;
     border-radius: 0 5px 5px 0;
 }
-.paperSize{
+#page-caja-del-restaurante .paperSize{
 	width: 7.4cm;
 	max-width: 7.4cm;
 	min-width: 7.4cm;
 }
-#menu_items{
+#page-caja-del-restaurante #menu_items{
 	background: white;
     /*border-bottom: 1px solid #ddd;*/
 }
-.flex-container {
+#page-caja-del-restaurante .flex-container {
   display: flex;
   flex-wrap: wrap;
 }
-.col-md-4.noprincipal {
+#page-caja-del-restaurante .col-md-4.noprincipal {
 	background: #1abc9c;
 }
-.flex-container > div.item {
+#page-caja-del-restaurante .flex-container > div.item {
     margin: 10px;
     border-radius: 5px;
     padding-bottom: 7px;
@@ -86,7 +81,7 @@ body[data-route="caja-del-restaurante"]{
     /* border: 1px solid #cccccc; */
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
-.col-md-12.layout.plato_comanda{
+#page-caja-del-restaurante .col-md-12.layout.plato_comanda{
 	padding-top: 15px;
 	margin-top: 5px;
 	padding-left: 20px;
@@ -94,7 +89,7 @@ body[data-route="caja-del-restaurante"]{
 	border-bottom: 1px solid #ddd;
 	border-radius: 5px; 
 }
-.mesa-disponible {
+#page-caja-del-restaurante .mesa-disponible {
     font-size: 15pt;
     padding: 8pt;
     background-color: rgb(249, 249, 249);
@@ -115,11 +110,11 @@ body[data-route="caja-del-restaurante"]{
     text-align: center;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
-.mesa-ocupada{
+#page-caja-del-restaurante .mesa-ocupada{
 	background-color: #36414c;
 	color: white;
 }
-.mesa-seleccionada {
+#page-caja-del-restaurante .mesa-seleccionada {
     background-color: #1abc9c;
     color: white;
 }
@@ -131,69 +126,97 @@ body[data-route="caja-del-restaurante"]{
 	}
 }
 @media print {
-  
-	.layout, 
-	.page-head,
-	.control-input-wrapper, 
-	.main-section>header, 
-	.layout-main-section > .row > .col-md-8,
-	.vtotal,
-	.vrate,
-	.vlito,
-	.vdel,
-	.vminus,
-	.vlito,
-	.vplus,
-	#total_id{
+	
+	#page-caja-del-restaurante .layout, 
+	#page-caja-del-restaurante .page-head,
+	#page-caja-del-restaurante .control-input-wrapper, 
+	#page-caja-del-restaurante .main-section>header, 
+	#page-caja-del-restaurante .layout-main-section > .row > .col-md-8,
+	#page-caja-del-restaurante .vtotal,
+	#page-caja-del-restaurante .vrate,
+	#page-caja-del-restaurante .vlito,
+	#page-caja-del-restaurante .vdel,
+	#page-caja-del-restaurante .vminus,
+	#page-caja-del-restaurante .vlito,
+	#page-caja-del-restaurante .vplus,
+	#page-caja-del-restaurante #total_id{
 	    display: none;
 	    border:none;
 	}
-	.layout-main-section > .row > .col-md-4 {
+	#page-caja-del-restaurante .layout-main-section > .row > .col-md-4 {
 	    width: 100%;
 	
 	}
-	.layout-main-section{
+	#page-caja-del-restaurante .layout-main-section{
 	    border:none;
 	}
-	.page-content, .content.page-container{
+	#page-caja-del-restaurante .page-content, .content.page-container{
 	    margin:0;
 	}
-	.printable, .vqty  {
+	#page-caja-del-restaurante .printable, .vqty  {
 	    display: unset !important;
 	    width:100%;
 	}
-	.col-md-12.layout-main-section-wrapper{
+	#page-caja-del-restaurante .col-md-12.layout-main-section-wrapper{
 	    border:0px;
 	}
-	.col-md-2{
+	#page-caja-del-restaurante .col-md-2{
 	    width:50px;
 	}
-	.vqty{
+	#page-caja-del-restaurante .vqty{
 	    right:10px;
 	    float:left;
 	    width:auto;
 
 	}
-	.title.col-md-5{
+	#page-caja-del-restaurante .col-all-mesas{
+		padding-top: 15px;
+		border-top: 1px solid #ccc;
+		height: calc( 100vh - 220px );
+		border-left: 1px solid #ccc;
+		max-height: calc( 100vh - 220px );
+		min-height: calc( 100vh - 220px );
+		overflow-y: auto;
+		padding-right: 0;
+		background: url(https://peruintercorp.com/assets/frappe/images/card-bg.png);
+		background-repeat: no-repeat;
+		background-position-x: right;
+		background-position-y: bottom;
+
+	}
+
+	#page-caja-del-restaurante .total-resultado{
+		margin-top: -5px; 
+		font-size: 14pt;
+		background: #4a81d4;
+		max-width: auto;
+		color: white;padding: 5px;
+		border-radius: 7px;text-align: center;
+		width: auto;
+		padding-left: 10pt;
+		padding-right: 10pt;
+		box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+	}
+	#page-caja-del-restaurante .title.col-md-5{
 	    display:inline;
 	    max-width:50%;
 	}
-	.layout-main-section, .layout-main-section .row, .layout-main-section .row .col-md-12{
+	#page-caja-del-restaurante .layout-main-section, #page-caja-del-restaurante .layout-main-section .row, #page-caja-del-restaurante .layout-main-section .row .col-md-12{
 	    padding:0;
 	    
 	}
-	.container.page-body{
+	#page-caja-del-restaurante .container.page-body{
 		
 		padding-left: 0!important;
 		padding-right: 0!important;
 	}
-	.row{
+	#page-caja-del-restaurante .row{
 	    margin:0;
 	}
-	.col-md-2:not(.vtotal){
+	#page-caja-del-restaurante .col-md-2:not(.vtotal){
 	    display:inline;
 	}
-	.layout-main-section > .row{
+	#page-caja-del-restaurante .layout-main-section > .row{
 		padding-left: 0!important;
 		padding-right: 0!important;
 	}
@@ -245,7 +268,6 @@ body[data-route="caja-del-restaurante"]{
 								    background: #1abc9c;
 								padding: 5px 0;
 								border-bottom: 1px solid #ddd;
-								/*border-top: 1px solid #ddd;*/
 							">
 									<div class="title col-md-6 col-xs-10 text-center" style="font-size: 9pt;font-size: 9pt; color:white !important;text-align: center;font-weight: 700;" >Item</div>
 									<div class="title col-md-2 col-xs-2" style="font-size: 9pt;font-size: 9pt; color:white !important;text-align: center;font-weight: 700;">Cant</div>
@@ -274,18 +296,7 @@ body[data-route="caja-del-restaurante"]{
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt; font-weight: 500; padding-top:15x" >Total</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt; visibility: hidden;" id="total_igv">S/.0.00</div>
 								            <div class="title col-md-3  col-xs-3 " style="font-size: 9pt; visibility: hidden;" id="total_subtotal">S/.0.00</div>
-								            <div class="title col-md-3  col-xs-3 " style="
-												margin-top: -5px; 
-												font-size: 14pt;
-												background: #4a81d4;
-												max-width: auto;
-												color: white;padding: 5px;
-												border-radius: 7px;text-align: center;
-												width: auto;
-												padding-left: 10pt;
-												padding-right: 10pt;
-												box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-											" id="total_total">S/.0.00</div>
+								            <div class="title col-md-3  col-xs-3 total-resultado" id="total_total">S/.0.00</div>
 								        </div>
 								    </div>
 								</div>
@@ -308,20 +319,7 @@ body[data-route="caja-del-restaurante"]{
 									{%  } %}
 								</div>
 							</div>
-							<div class="col-md-3 hidden-xs" style="padding-top: 15px;
-									border-top: 1px solid #ccc;
-									height: calc( 100vh - 220px );
-									border-left: 1px solid #ccc;
-									max-height: calc( 100vh - 220px );
-									min-height: calc( 100vh - 220px );
-									overflow-y: auto;
-									padding-right: 0;
-									
-									background: url(https://peruintercorp.com/assets/frappe/images/card-bg.png);
-									background-repeat: no-repeat;
-									background-position-x: right;
-									background-position-y: bottom;
-									">
+							<div class="col-md-3 hidden-xs col-all-mesas">
 								<div class="ellipsis title-text" style="
 								margin-top: -15px;
 								margin-left: -15px;
