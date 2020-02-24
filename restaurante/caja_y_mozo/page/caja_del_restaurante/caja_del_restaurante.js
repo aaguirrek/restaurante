@@ -74,9 +74,10 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	
 	frappe.call({
 		method:"frappe.client.get_list",
-		args:{"doctype": "Restaurant Table","order_by":"name asc"},
+		args:{"doctype": "Restaurant Table","order_by":"name asc","limit_start":1,"limit_page_length":100},
 		async: false,
 		callback: function(r) {	
+			console.log(r.message)
 			all_tables = r.message;
 		}
 	});
@@ -982,6 +983,7 @@ function generar_comprobante(values,nombreComp){
         A4="Ticket"
       }
       
+	  $('.msgprint').html(""); 
 		let frappemsg =	frappe.msgprint({message: nombreComp+
       ' ha sido emitida con éxito <br/><br/> <a  \
       onclick="pdf(\''+nombreComp+'\',\'Venta\')" \
@@ -989,7 +991,7 @@ function generar_comprobante(values,nombreComp){
       <div id="el_codigoqr"> </div> \
       ',
       title: 'Venta Generada', indicator:'green'});
-       setTimeout(function(e){$('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp );  },500)
+       setTimeout(function(e){$('#el_codigoqr').html(""); $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+nombreComp );  },500)
 		
 	   return frappemsg.onhide = function(e){ 
 			return limpiar();
@@ -1004,6 +1006,7 @@ function generar_comprobante(values,nombreComp){
         A4="Ticket"
       }
       	
+	  $('.msgprint').html(""); 
 	  // onclick="pdf(\''+nombreComp+'\',\'Venta\')"
 	  let frappe_no_text = frappe.msgprint({message: nombreComp+
 			' ha sido emitida con éxito <br/><br/> <a  \
@@ -1011,7 +1014,7 @@ function generar_comprobante(values,nombreComp){
 			<div id="el_codigoqr"> </div> \
 			',
 			title: 'Venta Generada', indicator:'green'});
-			setTimeout(function(e){	$('#el_codigoqr').qrcode( values.pdf ); },500)
+			setTimeout(function(e){	$('#el_codigoqr').html(""); $('#el_codigoqr').qrcode( values.pdf ); },500)
 		return frappe_no_text.onhide = function(e){ 
 			return limpiar();
 		}
@@ -1230,9 +1233,10 @@ function generar_comprobante(values,nombreComp){
         eltipo="F";
         elementoUrl="Factura";
       }
-      
-		let frappebol = frappe.msgprint({message: values.tipo_comprobante+
-      ' ha sido emitida con éxito <br/><br/> <a  \
+	  $('.msgprint').html(""); 
+	  $('#mensajeTitular').html(""); 
+		let frappebol = frappe.msgprint({message: '<div id="mensajeTitular">'+values.tipo_comprobante+
+      ' ha sido emitida con éxito </div><br/><br/> <a  \
       onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\',\'no\' )" \
       class="btn btn btn-sm btn-primary" >Imprimir</a> <a  \
       onclick="pdf(\''+r.message.name+'\',\''+values.tipo_comprobante+'\')" \
@@ -1242,7 +1246,7 @@ function generar_comprobante(values,nombreComp){
 	  
 	  
  
-      	setTimeout(function(e){ $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+r.message.name );  },500)
+      	setTimeout(function(e){ $('#el_codigoqr').html(""); $('#el_codigoqr').qrcode( frappe.urllib.get_base_url()+"/"+elementoUrl+A4+"?c="+r.message.name );  },500)
 	
 		return frappebol.onhide = function(e){ 
 			return limpiar();
