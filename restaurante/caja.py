@@ -109,7 +109,7 @@ def sync(restaurant_table, items, ct="Anonimo"):
   return doc
 
 @frappe.whitelist()
-def validar(restaurant_table, items, payments, tipoComprobante=0, customer="Anonimo"):
+def validar(restaurant_table, items, payments, tipoComprobante=0, customer="Anonimo", discount_amount=0):
   
   items      = json.loads(items)
   payments   = json.loads(payments)
@@ -125,7 +125,7 @@ def validar(restaurant_table, items, payments, tipoComprobante=0, customer="Anon
   doc = frappe.get_doc('Sales Invoice',docname )
   doc.tax_id = customer.tax_id
   doc.customer = customer.name
-  
+  doc.discount_amount = float(discount_amount)
   doc.items=[]
   for item in items:
     doc.append('items',{

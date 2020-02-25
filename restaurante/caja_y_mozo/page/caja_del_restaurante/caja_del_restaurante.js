@@ -24,7 +24,9 @@ var all_filtros ={};
 var directo=0;
 var ocupada={};
 var mesas={};
+var cur_cliente=null;
 var first_mesa=0;
+var modosPagos = null;
 var normalize = (function() {
   var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç", 
       to   = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
@@ -74,7 +76,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 	
 	frappe.call({
 		method:"frappe.client.get_list",
-		args:{"doctype": "Restaurant Table","order_by":"name asc","limit_start":1,"limit_page_length":100},
+		args:{"doctype": "Restaurant Table","order_by":"name asc","limit_page_length":100},
 		async: false,
 		callback: function(r) {	
 			console.log(r.message)
@@ -135,11 +137,56 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			options: "Customer",
 			fieldname: "customer",
 			placeholder: "Cliente",
-			default: "Anonimo"
+			default: "Anonimo",
+			change: function(frm){
+				let cliente=null;
+				if( fg.get_value() != "")
+				{
+					cliente = fg.get_value();
+				}
+					
+				frappe.call({
+					method: "frappe.client.get",
+					args: {
+						doctype: "Customer",
+						name: cliente
+					},
+					async: true,
+					callback: function(r) {
+						cur_cliente = r.message;
+						if(fmesa.get_value() != null)
+						{
+							frappe.db.exists('Restaurant Table Temp', 'Restemp-'+fmesa.get_value())
+							.then(exists => {
+								if(exists == true){
+									frappe.db.exists('Customer', cur_cliente.name )
+									.then(existes => {
+										if(existes == true){
+											frappe.db.set_value('Restaurant Table Temp', 'Restemp-'+fmesa.get_value(), 'customer', cur_cliente.name)
+										}
+									});
+								}
+							});
+						}
+					}
+				})
+			}
 		},
+		
 		render_input: true
 	});
-	
+		
+	frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Customer",
+			name: "Anonimo"
+		},
+		async: true,
+		callback: function(r) {
+			cur_cliente = r.message
+		}
+	})
 
 	ffilter_item = frappe.ui.form.make_control({
 		parent: page.wrapper.find(".filter"),
@@ -220,7 +267,17 @@ function change_mesa(mesa=""){
 		}
 				
 	}
-						
+		
+	frappe.call({
+		method: "frappe.client.get",
+		args: {
+			doctype: "Modos de pago"
+		},
+		async: false,
+		callback: function(r) {
+			modosPagos = r.message
+		}
+	})				
 	frappe.call({
 		method:"frappe.client.get_list",
 		args:{"doctype": "Restaurant Table Temp","order_by":"name asc", "fields":["mesa","name"] },
@@ -651,8 +708,7 @@ function plato_servido(values, iditem ){
 function pagarTodo(){
 	var iii=0;
 	
-	let cliente = "Anonimo";
-	
+	let monto_pendiente=0;
 	if ($(".octicon-bell").length > 0){
 		$('.octicon-bell').each(function() {
 			
@@ -668,9 +724,9 @@ function pagarTodo(){
 	}
 
 	let complementos = [];
-	frappe.db.get_doc('Sales Invoice', null, { restaurant_table: $('input[data-fieldname="mesarestaurant"]').val(), docstatus:0 })
-    .then(doc => {
-		complementos.push({
+	/*frappe.db.get_doc('Sales Invoice', null, { restaurant_table: fmesa.get_value(), docstatus:0 })
+    .then(doc => {*/
+		/*complementos.push({
 			label: 'Pre Cuenta',
 			fieldname: 'Cuenta',
 			fieldtype: 'Button',
@@ -681,38 +737,10 @@ function pagarTodo(){
 		complementos.push({
 			fieldname: 'saltos pre',
 			fieldtype: 'Section Break'
-		})
+		})*/
 
 
-		let modosPagos = null;
-		let cliente = null;
-	  frappe.call({
-		  method: "frappe.client.get",
-		  args: {
-			  doctype: "Modos de pago"
-		  },
-		  async: false,
-		  callback: function(r) {
-			  modosPagos = r.message
-		  }
-	  })
-	if( fg.get_value() != "")
-	{
-		cliente = fg.get_value();
-	}
-	
-	frappe.call({
-		  method: "frappe.client.get",
-		  args: {
-			doctype: "Customer",
-			name: cliente
-		  },
-		  freeze:1,
-		  async: false,
-		  callback: function(r) {
-			  cliente = r.message
-		  }
-	  })
+
 	  for (var i in modosPagos.items ){
 		  if(i % 2 == 0 && i!= 0 ){
 			  complementos.push({
@@ -728,14 +756,20 @@ function pagarTodo(){
 				  fieldname:modosPagos.items[i].metodo_de_pago,
 				  fieldtype:"Currency",
 				  placeholder:"0.00",
-				  default: parseFloat( $("#total_total").text().replace("S/.", "") )
+				  default: parseFloat( $("#total_total").text().replace("S/.", "") ),
+				  change: function(frm){
+					monto_pendiente = cur_doc.pendientes() ;
+				  }
 			  })
 		  }else{
 			  complementos.push({
 				  label: modosPagos.items[i].metodo_de_pago,
 				  fieldname:modosPagos.items[i].metodo_de_pago,
 				  fieldtype:"Currency",
-				  placeholder:"0.00"
+				  placeholder:"0.00",
+				  change: function(frm){
+					monto_pendiente = cur_doc.pendientes() ;
+				  }
 			  })
 		  }
 		  
@@ -747,6 +781,33 @@ function pagarTodo(){
 			  })
 		  }
 	  }
+	  complementos.push({
+			fieldname:"pagar_section_break_de4",
+			fieldtype:"Section Break",
+		})
+	   
+	  complementos.push({
+		  label:"Descuento",
+		  fieldname:"descuento",
+		  placeholder:"0.00",
+		  fieldtype:"Currency",
+		  change: function(frm){
+			cur_doc.pendientes() ;
+		  }
+	  })
+	  complementos.push({
+		  label:"",
+		  fieldname:"pagares_column_1",
+		  fieldtype:"Column Break",
+	  })
+	  complementos.push({
+		  label:"Monto Pendiente",
+		  fieldname:"pendiente",
+		  placeholder:"0.00",
+		  fieldtype:"Currency",
+		  read_only:1,
+		  bold:1
+	  })
 	  complementos.push({
 		  label:"Desea Boleta / Factura",
 		  fieldname:"pagar_section_break_1",
@@ -763,17 +824,17 @@ function pagarTodo(){
 		  ],
 		  default:""
 	  })
-	  complementos.push({
-		  label:"Desea Boleta / Factura",
-		  fieldname:"pagar_section_break_2",
-		  fieldtype:"Section Break",
-	  })
+	complementos.push({
+		label:"Datos del Cliente",
+		fieldname:"pagar_section_break_5",
+		fieldtype:"Section Break",
+	})
 	  complementos.push({
 		  label:"Ruc/Dni",
 		  fieldname:"numero_doc",
 		  fieldtype:"Data",
 		  read_only:1,
-		  default: cliente.tax_id
+		  default: cur_cliente.tax_id
 	  })
 	  complementos.push({
 		  fieldname:"Column Break",
@@ -784,7 +845,7 @@ function pagarTodo(){
 		  label:"Correo Electrónico",
 		  fieldname:"email",
 		  fieldtype:"Data",
-		  default: cliente.email_id
+		  default: cur_cliente.email_id
 	  })
 
 
@@ -796,15 +857,26 @@ function pagarTodo(){
 			fields: complementos,
 			primary_action_label: 'Enviar',
 			primary_action(values) {
-				generarVenta(values)
-				d.hide();
+				if(monto_pendiente != 0){
+					frappe.confirm('desea cerrar la venta con '+monto_pendiente+' soles sin cobrar?',
+					() => {
+						generarVenta(values);
+						d.hide();
+					}, () => {
+					})
+				}else{
+					generarVenta(values);
+					d.hide();
+				}
+				
+				
 			}
 		});
 		
 		d.show();
 	
 		
-	})
+	//})
 
 }
 function generarVenta(values){
@@ -826,7 +898,7 @@ function generarVenta(values){
 	for ( var s in values ){
 		if(values[s] !== "tipo_comprobante")
 		{
-			if(values[s] > 0 && s != "numero_doc" && s != "email"  ){
+			if(values[s] > 0 && s != "numero_doc" && s != "email" && s != "pendiente" && s != "descuento"  ){
 				payments.push({
 					amount: values[s],
 					mode_of_payment: s
@@ -840,7 +912,7 @@ function generarVenta(values){
 	{
 		cliente = fg.get_value();
 	}
-	let restable=$('select[data-fieldname="mesarestaurant"]').val();
+	let restable=fmesa.get_value();
 	frappe.call({
 		method: "restaurante.caja.validar",
 		args: {
@@ -849,13 +921,14 @@ function generarVenta(values){
 			restaurant_table: restable,
 			items:elementos,
 			payments: payments,
-			tipoComprobante:tipoComprobante
+			tipoComprobante:tipoComprobante,
+			discount_amount: values.descuento
 			
 		},
 		async: false,
 		freeze:1,
 		callback: function(r) {
-				generar_comprobante(values,r.message.name);
+				generar_comprobante(values,r.message.name, values);
 		},
 	});
 }
@@ -967,7 +1040,7 @@ function plato_delete(item_name,item){
 		callback: function(r) {},
 	});
 }
-function generar_comprobante(values,nombreComp){
+function generar_comprobante(values,nombreComp, values){
   	var eltipo="V";
   	var elementoUrl="Venta";
   	var A4="A4";
@@ -1062,15 +1135,19 @@ function generar_comprobante(values,nombreComp){
 		total_otros_cargos: "",
 		total_incluido_percepcion: "",
 		total_impuestos_bolsas: "",
+		total_descuento: 0,
 		total: ""
 	};
 	var cliente_email="";
 	if( "email" in values){
 		cliente_email = values.email;
 	}
-	total.total_gravada = ($("#total_subtotal").html()).replace("S/.","");
-	total.total_igv = ($("#total_igv").html()).replace("S/.","");
-	total.total = ($("#total_total").html()).replace("S/.","");
+	total.total = (parseFloat( ($("#total_total").html()).replace("S/.","") ) - parseFloat(values.descuento)).toFixed(2) ;
+	
+	total.total_gravada = ( parseFloat(total.total) / ( 1 + ( sunat_setup.igv / 100 ) ) ).toFixed(2) ;
+	total.total_igv = (parseFloat(total.total) - parseFloat(total.total_gravada)).toFixed(2);
+	total.total_descuento = values.descuento;
+	total.descuento_global = values.descuento;
 	if( "total_impuestos_bolsas" in values ){
 		total.total_impuestos_bolsas = values.total_impuestos_bolsas;
 	}

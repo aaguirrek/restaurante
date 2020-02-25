@@ -26,6 +26,7 @@ def set(form):
         "total":form["total"]["total"],
         "total_igv":form["total"]["total_igv"],
         "total_gravada":form["total"]["total_gravada"],
+        "total_descuento":form["total"]["total_descuento"],
         "items":form["items"],
         "serie_documento":form["documento"]["serie_documento"],
         "numero_documento":form["documento"]["numero_documento"],

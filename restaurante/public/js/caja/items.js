@@ -56,5 +56,17 @@ var cur_doc ={
 				}
 			},
 		});
+	},
+	pendientes: () => {
+		var pagado=0;
+		var total=parseFloat( $("#total_total").text().replace("S/.", ""));
+		var pendiente = 0;
+		
+		for (var i in modosPagos.items ){
+			pagado += cur_dialog.get_value(modosPagos.items[i].metodo_de_pago);
+		}
+		pendiente = total - pagado - cur_dialog.get_value("descuento");
+		cur_dialog.set_value("pendiente",pendiente);
+		return pendiente;
 	}
 }
