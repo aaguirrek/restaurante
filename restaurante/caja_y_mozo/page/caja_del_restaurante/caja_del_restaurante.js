@@ -1142,6 +1142,9 @@ function generar_comprobante(values,nombreComp, values){
 	if( "email" in values){
 		cliente_email = values.email;
 	}
+	if(values.descuento == undefined || values.descuento == NaN){
+		values.descuento = 0;
+	}
 	total.total = (parseFloat( ($("#total_total").html()).replace("S/.","") ) - parseFloat(values.descuento)).toFixed(2) ;
 	
 	total.total_gravada = ( parseFloat(total.total) / ( 1 + ( sunat_setup.igv / 100 ) ) ).toFixed(2) ;
