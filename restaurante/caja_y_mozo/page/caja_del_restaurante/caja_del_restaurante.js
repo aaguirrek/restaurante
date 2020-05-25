@@ -3,7 +3,7 @@ frappe.provide('frappe.pages');
 frappe.provide('frappe.views');
 frappe.provide('sample_register');
 
-var printer = io('https://frappe.cf:4103/');
+var printer = io('https://peruintercorp.com:4103/');
 var toppings=null;
 var page=null;
 var sunat_setup=null;
@@ -1107,11 +1107,11 @@ function generar_comprobante(values,nombreComp, values){
 		response.data.name = "VARIOS";
 	}
 	if( (values.numero_doc).length == 11){
-		settings.url = "https://lobellum.cf/api/services/ruc/"+values.numero_doc;
+		settings.url = "https://lobellum.frappe.cf/api/services/ruc/"+values.numero_doc;
 		response = JSON.parse( $.ajax(settings).responseText );
 	}else{
 		if( (values.numero_doc).length == 8 ){
-			settings.url = "https://lobellum.cf/api/services/dni/"+values.numero_doc
+			settings.url = "https://lobellum.frappe.cf/api/services/dni/"+values.numero_doc
 			response = JSON.parse( $.ajax(settings).responseText );
 		}else{
 			values.numero_doc="OTROS"
