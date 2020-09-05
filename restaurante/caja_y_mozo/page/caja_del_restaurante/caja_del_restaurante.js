@@ -139,7 +139,7 @@ frappe.pages['caja-del-restaurante'].on_page_load = function(wrapper) {
 			placeholder: "Cliente",
 			default: "Anonimo",
 			change: function(frm){
-				let cliente=null;
+				let cliente="Anonimo";
 				if( fg.get_value() != "")
 				{
 					cliente = fg.get_value();
